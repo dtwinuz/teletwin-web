@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { configDefaults, defineConfig, mergeConfig } from 'vitest/config';
 
 import viteConfig from './vite.config.ts';
@@ -11,7 +12,8 @@ export default defineConfig((configEnv) => mergeConfig(
     },
     test: {
       environment: 'jsdom',
-      setupFiles: ['./tests/init.ts'],
+      // TeleTwin: `tests/` is gitignored (upstream keeps its Playwright suite there), so the setup file is optional
+      setupFiles: existsSync('./tests/init.ts') ? ['./tests/init.ts'] : [],
       // Agent worktrees under `.claude/` hold stale copies of the tests
       exclude: [...configDefaults.exclude, '.claude/**'],
     },
