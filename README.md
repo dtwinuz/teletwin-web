@@ -315,7 +315,6 @@ To'liq reja va holat: **[GitHub Project #9](https://github.com/orgs/dtwinuz/proj
 
 - 🧪 Sifat: `src/teletwin/` uchun unit testlar (guard, ids), web uchun PR CI (tsc + eslint + vitest)
 - 🧩 Korxona funksiyalarini to'liq tasdiqlash: forward, hujjat, round video, sticker, ro'yxatdan o'tish oqimi
-- 🌐 TeleTwin matnlari hozir faqat o'zbekcha — rus va ingliz tarjimasi
 - 📦 Desktop kod-imzosi va auto-update, Android release (Play) imzosi, GitHub Release
 - 📱 iOS qobig'i
 - 📞 Korxona ichida qo'ng'iroqlar (dizayn: asosiy repo)
@@ -326,6 +325,11 @@ To'liq reja va holat: **[GitHub Project #9](https://github.com/orgs/dtwinuz/proj
 - Default branch: **`teletwin`**. Har o'zgarish alohida branch → PR → `teletwin`.
 - Korxona kodi `src/teletwin/` da. Web A fayliga tegish kerak bo'lsa — minimal ilgak va `// TeleTwin: ...` izohi,
   shunda upstream bilan solishtirish oson.
+- **TeleTwin matnlari (i18n):** o'zbekcha matn `src/assets/localization/fallback.strings` da (`TeleTwin...` kaliti),
+  rus va ingliz tarjimasi `src/teletwin/strings.ts` da. Yangi kalit: 1) o'zbekchasini `fallback.strings` ga qo'shing,
+  2) `npm run lang:ts`, 3) `strings.ts` dagi `RU` va `EN` jadvaliga tarjimasini qo'shing (`strings.test.ts` kalit
+  yoki `{o'zgaruvchi}` tushib qolsa yiqiladi). Matn interfeys tiliga qarab tanlanadi: `uz` → o'zbekcha,
+  `ru` (va `uk`, `be`, `kk`, `ky`, `tg`) → ruscha, qolgan tillar → inglizcha.
 - Commit sarlavhasi upstream uslubida, inglizcha: `TeleTwin / Corp: ...`, `TeleTwin / Android: ...`, `[CI] Tauri: ...`.
 - **Repo PUBLIC:** `.env`, `api_id`/`api_hash`, keystore, token, server ichki tafsilotlari commit qilinmaydi.
 - Kod uslubi va tekshiruvlar upstream'niki: `npm run check`, [`AGENTS.md`](AGENTS.md).
