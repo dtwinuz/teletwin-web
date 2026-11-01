@@ -5708,23 +5708,11 @@ export interface LangPairWithVariables<V = LangVariable> {
     'name': V;
     'text': V;
   };
-  'TeleTwinWakeUpSent': {
-    'name': V;
-  };
-  'TeleTwinWakeUpIncoming': {
-    'name': V;
-  };
   'TeleTwinWakeUpDnd': {
     'name': V;
   };
   'TeleTwinReminderIncoming': {
     'text': V;
-  };
-  'TeleTwinDirectoryMembers': {
-    'count': V;
-  };
-  'TeleTwinDirectorySubscribers': {
-    'count': V;
   };
   'TeleTwinActivityMention': {
     'name': V;
@@ -5736,8 +5724,20 @@ export interface LangPairWithVariables<V = LangVariable> {
   };
   'TeleTwinActivityReaction': {
     'name': V;
-    'chat': V;
     'emoji': V;
+    'chat': V;
+  };
+  'TeleTwinDirectoryMembers': {
+    'count': V;
+  };
+  'TeleTwinDirectorySubscribers': {
+    'count': V;
+  };
+  'TeleTwinWakeUpSent': {
+    'name': V;
+  };
+  'TeleTwinWakeUpIncoming': {
+    'name': V;
   };
 }
 
@@ -6730,9 +6730,9 @@ export interface LangKeyGroups {
       | 'WalletConnectRequestAppDeclined'
       | 'WalletConnectRequestAppExpired'
       | 'WalletConnectSignTitle'
+      | 'TeleTwinWakeUpDnd'
       | 'TeleTwinWakeUpSent'
-      | 'TeleTwinWakeUpIncoming'
-      | 'TeleTwinWakeUpDnd';
+      | 'TeleTwinWakeUpIncoming';
     variables: 'name';
   };
   'limit,premiumLimit': {
@@ -6933,7 +6933,9 @@ export interface LangKeyGroups {
       | 'BoostGiftStarsPerUser'
       | 'ConnectedAccountsLimitSubtitle'
       | 'GiveawayStarsPrepaidTitle'
-      | 'SimilarChannelsLimitSubtitle';
+      | 'SimilarChannelsLimitSubtitle'
+      | 'TeleTwinDirectoryMembers'
+      | 'TeleTwinDirectorySubscribers';
     variables: 'count';
   };
   'duration,time': {
@@ -7979,6 +7981,17 @@ export interface LangKeyGroups {
     keys:
       | 'TeleTwinMentionIncoming';
     variables: 'name' | 'text';
+  };
+  'chat,name': {
+    keys:
+      | 'TeleTwinActivityMention'
+      | 'TeleTwinActivityThreadReply';
+    variables: 'chat' | 'name';
+  };
+  'chat,emoji,name': {
+    keys:
+      | 'TeleTwinActivityReaction';
+    variables: 'chat' | 'emoji' | 'name';
   };
 }
 
