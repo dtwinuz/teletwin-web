@@ -63,7 +63,7 @@ Belgilar: ✅ kod bor va ishlatilmoqda · 🟡 kod bor, to'liq sinalmagan · �
 | Saqlangan xabarlar + eslatma, "Faollik" lentasi, "Kanallar katalogi" | 🟡 | `saved.ts`, `activity.ts`, `CorpDirectory.tsx` |
 | Global qidiruvda korxona xabarlari | 🟡 | `src/global/actions/api/globalSearch.ts` |
 | Revoke → korxona ma'lumoti darhol tozalanadi, offline keshda saqlanmaydi | ✅ | `src/global/cache.ts`, `engine.ts` |
-| Desktop: Windows (NSIS), macOS (arm64/x64 DMG), Linux (deb, AppImage) | ✅ CI build · 🟡 imzosiz, auto-update yo'q | `tauri/`, `teletwin-desktop.yml` |
+| Desktop: Windows (NSIS), macOS (arm64/x64 DMG), Linux (deb, AppImage) | ✅ CI build · ✅ auto-update (Tauri updater) · 🟡 kod-imzosiz | `tauri/`, `teletwin-desktop.yml` |
 | Android APK (tester kaliti bilan imzolangan), bildirishnoma va yuklab olish bridge | ✅ CI build | `mobile/`, `teletwin-android.yml` |
 | iOS ilova | 🔜 | — |
 | Korxona ichida audio/video qo'ng'iroq | 🔜 (dizayn asosiy repo'da) | — |
@@ -257,10 +257,11 @@ cd android && ./gradlew assembleDebug
 | `mobile/capacitor.config.json` → `server.url` | Android qobiq ochadigan web manzil |
 | `vite.config.ts` → CSP `connect-src` | boshqa serverga ko'chilsa shu yerga ham qo'shiladi |
 
-**CI secret'lari (Android)** — faqat nomlari; keystore repo'ga hech qachon tushmaydi.
+**CI secret'lari** — faqat nomlari; kalit va keystore repo'ga hech qachon tushmaydi.
 
 | Secret | Vazifasi |
 |---|---|
+| `TAURI_SIGNING_PRIVATE_KEY` | desktop updater imzo kaliti (parolsiz minisign). Ochiq kaliti `tauri/tauri.teletwin.updater.conf.json` da. Kalit almashsa eski o'rnatilganlar yangilanishni rad etadi — faqat yangi paketni qo'lda o'rnatish bilan tiklanadi |
 | `TELETWIN_TESTER_KEYSTORE_BASE64`, `TELETWIN_TESTER_KEYSTORE_PASSWORD` | tester APK uchun barqaror imzo (yangi build eskisining ustiga o'rnatiladi) |
 | `TELETWIN_KEYSTORE_BASE64`, `TELETWIN_KEYSTORE_PASSWORD`, `TELETWIN_KEY_ALIAS`, `TELETWIN_KEY_PASSWORD` | release AAB imzosi (bo'lmasa AAB imzosiz qoladi) |
 
@@ -271,6 +272,11 @@ flowchart LR
   C["push: teletwin"] --> D{"o'zgargan papka"}
   D -- "tauri/**" --> TD["teletwin-desktop.yml<br/>Win · macOS · Linux paketlari"]
   D -- "mobile/**" --> TA["teletwin-android.yml<br/>APK + debug APK + AAB"]
+  TG["tag push: v*"] --> TR["teletwin-release.yml"]
+  TR --> TD
+  TR --> TA
+  TR --> GR["GitHub Release<br/>paketlar + SHA-256 + latest.json"]
+  GR -. "Tauri updater" .-> TD
   L["lokal: npm run build:production"] --> WEB["dist/ → deploy-web.sh<br/>(dtwinuz/teletwin repo'da)"]
   WEB --> H["web ilova serverda"]
   TD -. "BASE_URL ni ochadi" .-> H
@@ -282,7 +288,14 @@ flowchart LR
   `https://dtwin.uz/teletwin/web/` da ham ochiladi — desktop (`frontendDist`) va Android (`server.url`) qobiqlari shu manzilni ochadi.
 - **Desktop va Android** qobiqlari web ilovani serverdan ochadi — shuning uchun **web deploy har bir o'rnatilgan
   desktop va telefonni avtomatik yangilaydi**, yangi paket faqat qobiq o'zgarganda kerak.
-- Paketlar GitHub Actions artefakti sifatida chiqadi; bu repo'da GitHub Release yo'q. Tarqatilayotgan paketlar
+- **Reliz:** `git tag vX.Y.Z && git push origin vX.Y.Z` → `teletwin-release.yml` desktop va Android'ni quradi va
+  [GitHub Release](https://github.com/dtwinuz/teletwin-web/releases) yaratadi: Windows setup, macOS DMG (arm64, x64),
+  Linux deb/AppImage, Android APK, tavsifda SHA-256 ro'yxati va `latest.json` (updater manifesti). Versiya o'rnatilganidan
+  katta bo'lsin (birinchi desktop paketlar `2.12.2`), tag `v*` ruleset bilan himoyalangan (o'chirib/surib bo'lmaydi).
+- **Desktop auto-update:** o'rnatilgan qobiq `releases/latest/download/latest.json` ni tekshiradi, imzoni ochiq kalit bilan
+  solishtiradi va chap ustundagi "Update" tugmasi orqali yangisini o'rnatib qayta ishga tushadi. Updater faqat shu
+  o'zgarishdan keyin qurilgan paketlarda bor — eski `2.12.2` paketlar yangisini bir marta qo'lda o'rnatishi kerak.
+- Push build'lar GitHub Actions artefakti sifatida chiqadi (muddati o'tadi). Tarqatilayotgan paketlar
   (desktop `TeleTwin_2.12.2_*` — Windows setup, macOS arm64/x64 DMG, Linux deb/AppImage; Android `TeleTwin-1.0.4-android.apk`)
   home sahifaning [yuklab olish bo'limida](https://tele.dtwin.uz/#download), SHA-256 —
   [downloads.json](https://tele.dtwin.uz/download/downloads.json). Windows setup

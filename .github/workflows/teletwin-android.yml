@@ -16,6 +16,25 @@ on:
     paths:
       - 'mobile/**'
       - '.github/workflows/teletwin-android.yml'
+  workflow_call:
+    inputs:
+      version:
+        description: 'Release tag (vX.Y.Z); empty = 1.0.<run number>'
+        type: string
+        default: ''
+    secrets:
+      TELETWIN_TESTER_KEYSTORE_BASE64:
+        required: false
+      TELETWIN_TESTER_KEYSTORE_PASSWORD:
+        required: false
+      TELETWIN_KEYSTORE_BASE64:
+        required: false
+      TELETWIN_KEYSTORE_PASSWORD:
+        required: false
+      TELETWIN_KEY_ALIAS:
+        required: false
+      TELETWIN_KEY_PASSWORD:
+        required: false
 
 concurrency:
   group: teletwin-android-${{ github.ref }}
@@ -32,9 +51,6 @@ jobs:
     defaults:
       run:
         working-directory: mobile
-    env:
-      TELETWIN_VERSION_CODE: ${{ github.run_number }}
-      TELETWIN_VERSION_NAME: 1.0.${{ github.run_number }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
@@ -52,6 +68,20 @@ jobs:
           java-version: '21'
 
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Set version
+        working-directory: .
+        env:
+          RELEASE_TAG: ${{ inputs.version }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          # Minutes since the epoch: grows across push builds and releases, so each APK installs over the previous one
+          echo "TELETWIN_VERSION_CODE=$(( $(date +%s) / 60 ))" >> "$GITHUB_ENV"
+          if [ -n "$RELEASE_TAG" ]; then
+            echo "TELETWIN_VERSION_NAME=${RELEASE_TAG#v}" >> "$GITHUB_ENV"
+          else
+            echo "TELETWIN_VERSION_NAME=1.0.$RUN_NUMBER" >> "$GITHUB_ENV"
+          fi
 
       - run: npm ci
 
