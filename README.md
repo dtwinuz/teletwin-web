@@ -307,6 +307,7 @@ flowchart LR
 
 Fork **orphan import** sifatida boshlangan: upstream tarixi olib kelinmagan, birinchi commit
 `276ffe9` = `Ajaxy/telegram-tt @ 6002824`. Undan keyingi hamma commit — TeleTwin.
+Upstream yangilanishlarini olish: [`docs/UPSTREAM-SYNC.md`](docs/UPSTREAM-SYNC.md) (`scripts/upstream-sync.sh`, asos `.upstream-base` da).
 
 | Sana | Bosqich | Natija |
 |---|---|---|
