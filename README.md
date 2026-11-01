@@ -193,7 +193,8 @@ teletwin-web/
 ├── tauri/                     # desktop qobiq (upstream + tauri.teletwin.conf.json)
 ├── mobile/                    # Android Capacitor qobiq (uz.dtwin.teletwin)
 │   ├── capacitor.config.json  #   ochiladigan web manzil
-│   └── android/               #   Gradle loyiha, TeleTwinBridge.java, teletwin_bridge.js
+│   ├── android/               #   Gradle loyiha, TeleTwinBridge.java, teletwin_bridge.js
+│   └── ios/                   #   Xcode loyiha (scaffold, SPM; build faqat macOS'da)
 ├── .github/workflows/         # teletwin-desktop.yml, teletwin-android.yml (workflow fayllari gitignore'da: git add -f)
 ├── docs/UPSTREAM-README.md    # asl Telegram Web A README'si
 └── LICENSE                    # GPL-3.0
@@ -233,6 +234,25 @@ npm ci
 npx cap sync android
 cd android && ./gradlew assembleDebug
 ```
+
+iOS qobiq (**faqat macOS + Xcode**; Windows/Linux'da loyiha fayllarini tahrirlash mumkin, build emas):
+
+```sh
+cd mobile
+npm ci
+npx cap sync ios
+npx cap open ios              # Xcode: Signing & Capabilities -> Team, keyin Product -> Archive -> TestFlight
+```
+
+iOS cheklovlari (Android'dagi `TeleTwinBridge` iOS'da yo'q, qurilmada hali sinalmagan):
+
+| Imkoniyat | iOS holati |
+|---|---|
+| Web ilova, login, korxona chatlari | `server.url` orqali, Android bilan bir xil |
+| Bildirishnoma | yo'q: WKWebView web `Notification` API'ni bermaydi; kerak bo'lsa APNs + server push (alohida ish) |
+| Fayl yuklab olish | WKWebView `download` havolasini o'zi saqlamaydi; native `WKDownload`/share sheet ilgagi kerak (alohida ish) |
+| Mikrofon, kamera, galereya | `Info.plist` ruxsat matnlari bor (ovozli xabar, round video, rasm) |
+| `teletwin://` deep link | URL scheme ro'yxatdan o'tgan; ochilgan manzilni web ilovaga uzatish native kodi hali yo'q |
 
 > [!TIP]
 > Korxona qismini sinash uchun TeleTwin server kerak — uni ishga tushirish [dtwinuz/teletwin](https://github.com/dtwinuz/teletwin) da.
