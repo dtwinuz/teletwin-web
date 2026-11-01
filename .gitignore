@@ -16,3 +16,4 @@ dev/perf/screenshot*
 /tauri/target
 /tauri/gen
 /tauri/permissions
+/tauri/tauri.version.json

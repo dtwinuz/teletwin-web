@@ -1,0 +1,118 @@
+# TeleTwin release: pushing a tag vX.Y.Z builds the desktop and Android packages and publishes them as a
+# GitHub Release with a SHA-256 list. latest.json in the release is the Tauri updater manifest: installed
+# desktop shells check releases/latest/download/latest.json and update themselves.
+# The version must be greater than the installed one (first TeleTwin desktop builds are 2.12.2).
+
+name: TeleTwin release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: teletwin-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  desktop:
+    uses: ./.github/workflows/teletwin-desktop.yml
+    with:
+      version: ${{ github.ref_name }}
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+
+  android:
+    uses: ./.github/workflows/teletwin-android.yml
+    with:
+      version: ${{ github.ref_name }}
+    secrets:
+      TELETWIN_TESTER_KEYSTORE_BASE64: ${{ secrets.TELETWIN_TESTER_KEYSTORE_BASE64 }}
+      TELETWIN_TESTER_KEYSTORE_PASSWORD: ${{ secrets.TELETWIN_TESTER_KEYSTORE_PASSWORD }}
+      TELETWIN_KEYSTORE_BASE64: ${{ secrets.TELETWIN_KEYSTORE_BASE64 }}
+      TELETWIN_KEYSTORE_PASSWORD: ${{ secrets.TELETWIN_KEYSTORE_PASSWORD }}
+      TELETWIN_KEY_ALIAS: ${{ secrets.TELETWIN_KEY_ALIAS }}
+      TELETWIN_KEY_PASSWORD: ${{ secrets.TELETWIN_KEY_PASSWORD }}
+
+  publish:
+    name: Publish GitHub Release
+    needs: [desktop, android]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.ref_name }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: TeleTwin-*
+          path: artifacts
+
+      - name: Collect release files
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          mkdir -p release
+          # Both macOS builds name their updater archive TeleTwin.app.tar.gz: prefix it with the architecture
+          for arch in aarch64 x86_64; do
+            dir="artifacts/TeleTwin-macos-$([ "$arch" = aarch64 ] && echo arm64 || echo x64)"
+            for f in $(find "$dir" -name '*.app.tar.gz' -o -name '*.app.tar.gz.sig'); do
+              cp "$f" "release/TeleTwin_${version}_${arch}.${f##*.app.}"
+            done
+          done
+          find artifacts \( -name '*.exe' -o -name '*.exe.sig' -o -name '*.dmg' -o -name '*.deb' \
+            -o -name '*.AppImage' -o -name '*.AppImage.sig' \) -exec cp {} release/ \;
+          find artifacts/TeleTwin-android-apk -name '*.apk' ! -name '*-debug.apk' -exec cp {} release/ \;
+          ls -l release
+
+      - name: Write updater manifest
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          base="https://github.com/$REPO/releases/download/$TAG"
+          entry() {
+            local file="$1"
+            jq -n --arg sig "$(cat "release/$file.sig")" --arg url "$base/$file" '{signature: $sig, url: $url}'
+          }
+          win=$(cd release && ls *-setup.exe)
+          linux=$(cd release && ls *.AppImage)
+          jq -n \
+            --arg version "$version" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson win "$(entry "$win")" \
+            --argjson arm "$(entry "TeleTwin_${version}_aarch64.tar.gz")" \
+            --argjson x64 "$(entry "TeleTwin_${version}_x86_64.tar.gz")" \
+            --argjson linux "$(entry "$linux")" \
+            '{version: $version, notes: "TeleTwin \($version)", pub_date: $date, platforms: {
+              "windows-x86_64": $win, "darwin-aarch64": $arm, "darwin-x86_64": $x64, "linux-x86_64": $linux
+            }}' > release/latest.json
+          cat release/latest.json
+
+      - name: Write release notes
+        run: |
+          set -euo pipefail
+          {
+            echo "TeleTwin ${TAG#v}: desktop (Windows, macOS, Linux) and Android packages."
+            echo
+            echo "Desktop and Android shells open the hosted web app, so the web part updates on every server deploy."
+            echo "Installed desktop apps update the shell from this release automatically (latest.json)."
+            echo "Packages are not code-signed yet: Windows SmartScreen and macOS Gatekeeper will warn."
+            echo
+            echo "SHA-256:"
+            echo
+            echo '```'
+            (cd release && sha256sum -- * | grep -v '\.sig$')
+            echo '```'
+          } > notes.md
+          cat notes.md
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" release/* --repo "$REPO" --title "TeleTwin ${TAG#v}" --notes-file notes.md --verify-tag
