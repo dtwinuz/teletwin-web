@@ -63,7 +63,7 @@ Belgilar: ✅ kod bor va ishlatilmoqda · 🟡 kod bor, to'liq sinalmagan · �
 | Saqlangan xabarlar + eslatma, "Faollik" lentasi, "Kanallar katalogi" | 🟡 | `saved.ts`, `activity.ts`, `CorpDirectory.tsx` |
 | Global qidiruvda korxona xabarlari | 🟡 | `src/global/actions/api/globalSearch.ts` |
 | Revoke → korxona ma'lumoti darhol tozalanadi, offline keshda saqlanmaydi | ✅ | `src/global/cache.ts`, `engine.ts` |
-| Desktop: Windows (NSIS), macOS (arm64/x64 DMG), Linux (deb, AppImage) | ✅ CI build · 🟡 imzosiz, auto-update yo'q | `tauri/`, `teletwin-desktop.yml` |
+| Desktop: Windows (NSIS), macOS (arm64/x64 DMG), Linux (deb, AppImage) | ✅ CI build · ✅ auto-update (Tauri updater) · 🟡 kod-imzosiz | `tauri/`, `teletwin-desktop.yml` |
 | Android APK (tester kaliti bilan imzolangan), bildirishnoma va yuklab olish bridge | ✅ CI build | `mobile/`, `teletwin-android.yml` |
 | iOS ilova | 🔜 | — |
 | Korxona ichida audio/video qo'ng'iroq | 🔜 (dizayn asosiy repo'da) | — |
@@ -167,7 +167,7 @@ nuqtaviy "ilgaklar" (har birida `TeleTwin:` izohi). Asosiylari:
 | Korxona API | `fetch` REST klient (`src/teletwin/api.ts`) |
 | Desktop | Tauri 2 (Rust) — `tauri/tauri.teletwin.conf.json` |
 | Android | Capacitor 8, Java (`TeleTwinBridge`: bildirishnoma, yuklab olish) |
-| CI | GitHub Actions: `teletwin-desktop.yml`, `teletwin-android.yml` |
+| CI | GitHub Actions: `teletwin-web-ci.yml` (PR: tsc + eslint + vitest), `teletwin-desktop.yml`, `teletwin-android.yml` |
 | Node | `.node-version` = 26 |
 
 ## 📁 Tuzilma
@@ -192,7 +192,7 @@ teletwin-web/
 ├── mobile/                    # Android Capacitor qobiq (uz.dtwin.teletwin)
 │   ├── capacitor.config.json  #   ochiladigan web manzil
 │   └── android/               #   Gradle loyiha, TeleTwinBridge.java, teletwin_bridge.js
-├── .github/workflows/         # teletwin-desktop.yml, teletwin-android.yml (+ upstream package-and-publish.yml)
+├── .github/workflows/         # teletwin-desktop.yml, teletwin-android.yml (workflow fayllari gitignore'da: git add -f)
 ├── docs/UPSTREAM-README.md    # asl Telegram Web A README'si
 └── LICENSE                    # GPL-3.0
 ```
@@ -212,7 +212,7 @@ Production build (statik fayllar `dist/` ga):
 ```sh
 BASE_URL=https://example.com/web/ npm run build:production
 npm run check                 # tsc + eslint + stylelint
-npm test                      # vitest (upstream testlari)
+npm test                      # vitest (upstream + src/teletwin testlari)
 ```
 
 Desktop paket (Rust toolchain kerak; CI'dagi bilan bir xil konfiguratsiya):
@@ -257,10 +257,11 @@ cd android && ./gradlew assembleDebug
 | `mobile/capacitor.config.json` → `server.url` | Android qobiq ochadigan web manzil |
 | `vite.config.ts` → CSP `connect-src` | boshqa serverga ko'chilsa shu yerga ham qo'shiladi |
 
-**CI secret'lari (Android)** — faqat nomlari; keystore repo'ga hech qachon tushmaydi.
+**CI secret'lari** — faqat nomlari; kalit va keystore repo'ga hech qachon tushmaydi.
 
 | Secret | Vazifasi |
 |---|---|
+| `TAURI_SIGNING_PRIVATE_KEY` | desktop updater imzo kaliti (parolsiz minisign). Ochiq kaliti `tauri/tauri.teletwin.updater.conf.json` da. Kalit almashsa eski o'rnatilganlar yangilanishni rad etadi — faqat yangi paketni qo'lda o'rnatish bilan tiklanadi |
 | `TELETWIN_TESTER_KEYSTORE_BASE64`, `TELETWIN_TESTER_KEYSTORE_PASSWORD` | tester APK uchun barqaror imzo (yangi build eskisining ustiga o'rnatiladi) |
 | `TELETWIN_KEYSTORE_BASE64`, `TELETWIN_KEYSTORE_PASSWORD`, `TELETWIN_KEY_ALIAS`, `TELETWIN_KEY_PASSWORD` | release AAB imzosi (bo'lmasa AAB imzosiz qoladi) |
 
@@ -271,6 +272,11 @@ flowchart LR
   C["push: teletwin"] --> D{"o'zgargan papka"}
   D -- "tauri/**" --> TD["teletwin-desktop.yml<br/>Win · macOS · Linux paketlari"]
   D -- "mobile/**" --> TA["teletwin-android.yml<br/>APK + debug APK + AAB"]
+  TG["tag push: v*"] --> TR["teletwin-release.yml"]
+  TR --> TD
+  TR --> TA
+  TR --> GR["GitHub Release<br/>paketlar + SHA-256 + latest.json"]
+  GR -. "Tauri updater" .-> TD
   L["lokal: npm run build:production"] --> WEB["dist/ → deploy-web.sh<br/>(dtwinuz/teletwin repo'da)"]
   WEB --> H["web ilova serverda"]
   TD -. "BASE_URL ni ochadi" .-> H
@@ -282,12 +288,20 @@ flowchart LR
   `https://dtwin.uz/teletwin/web/` da ham ochiladi — desktop (`frontendDist`) va Android (`server.url`) qobiqlari shu manzilni ochadi.
 - **Desktop va Android** qobiqlari web ilovani serverdan ochadi — shuning uchun **web deploy har bir o'rnatilgan
   desktop va telefonni avtomatik yangilaydi**, yangi paket faqat qobiq o'zgarganda kerak.
-- Paketlar GitHub Actions artefakti sifatida chiqadi; bu repo'da GitHub Release yo'q. Tarqatilayotgan paketlar
+- **Reliz:** `git tag vX.Y.Z && git push origin vX.Y.Z` → `teletwin-release.yml` desktop va Android'ni quradi va
+  [GitHub Release](https://github.com/dtwinuz/teletwin-web/releases) yaratadi: Windows setup, macOS DMG (arm64, x64),
+  Linux deb/AppImage, Android APK, tavsifda SHA-256 ro'yxati va `latest.json` (updater manifesti). Versiya o'rnatilganidan
+  katta bo'lsin (birinchi desktop paketlar `2.12.2`), tag `v*` ruleset bilan himoyalangan (o'chirib/surib bo'lmaydi).
+- **Desktop auto-update:** o'rnatilgan qobiq `releases/latest/download/latest.json` ni tekshiradi, imzoni ochiq kalit bilan
+  solishtiradi va chap ustundagi "Update" tugmasi orqali yangisini o'rnatib qayta ishga tushadi. Updater faqat shu
+  o'zgarishdan keyin qurilgan paketlarda bor — eski `2.12.2` paketlar yangisini bir marta qo'lda o'rnatishi kerak.
+- Push build'lar GitHub Actions artefakti sifatida chiqadi (muddati o'tadi). Tarqatilayotgan paketlar
   (desktop `TeleTwin_2.12.2_*` — Windows setup, macOS arm64/x64 DMG, Linux deb/AppImage; Android `TeleTwin-1.0.4-android.apk`)
   home sahifaning [yuklab olish bo'limida](https://tele.dtwin.uz/#download), SHA-256 —
   [downloads.json](https://tele.dtwin.uz/download/downloads.json). Windows setup
   [dtwinuz/teletwin v0.1.0](https://github.com/dtwinuz/teletwin/releases/tag/v0.1.0) relizida ham bor. Desktop paketlari kod-imzosiz.
-- Upstream'dan qolgan `package-and-publish.yml` faqat `master` push yoki qo'lda ishga tushadi — TeleTwin uchun ishlatilmaydi.
+- Upstream'ning `package-and-publish.yml` (Electron paket, `master` push, upstream nashri) o'chirilgan: TeleTwin paketlari
+  faqat `teletwin-desktop.yml` va `teletwin-android.yml` dan chiqadi. Upstream yangilanishi olinganda bu fayl qayta qo'shilmasin.
 
 ## 📜 Tarix
 
@@ -313,7 +327,6 @@ PR [#2](https://github.com/dtwinuz/teletwin-web/pull/2) (Android klaviatura) —
 
 To'liq reja va holat: **[GitHub Project #9](https://github.com/orgs/dtwinuz/projects/9)**.
 
-- 🧪 Sifat: `src/teletwin/` uchun unit testlar (guard, ids), web uchun PR CI (tsc + eslint + vitest)
 - 🧩 Korxona funksiyalarini to'liq tasdiqlash: forward, hujjat, round video, sticker, ro'yxatdan o'tish oqimi
 - 📦 Desktop kod-imzosi va auto-update, Android release (Play) imzosi, GitHub Release
 - 📱 iOS qobig'i
@@ -322,7 +335,8 @@ To'liq reja va holat: **[GitHub Project #9](https://github.com/orgs/dtwinuz/proj
 
 ## 🤝 Hissa / ish tartibi
 
-- Default branch: **`teletwin`**. Har o'zgarish alohida branch → PR → `teletwin`.
+- Default branch: **`teletwin`**. Har o'zgarish alohida branch → PR → `teletwin`. PR'da `teletwin-web-ci.yml`
+  `tsc`, `eslint` (`src/teletwin/` + PR o'zgartirgan fayllar; upstream kodi joriy eslint bilan toza emas) va `npm test` ni yurgizadi.
 - Korxona kodi `src/teletwin/` da. Web A fayliga tegish kerak bo'lsa — minimal ilgak va `// TeleTwin: ...` izohi,
   shunda upstream bilan solishtirish oson.
 - **TeleTwin matnlari (i18n):** o'zbekcha matn `src/assets/localization/fallback.strings` da (`TeleTwin...` kaliti),

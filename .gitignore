@@ -10,10 +10,10 @@ tests/
 dev/perf/screenshot*
 .DS_store
 .github/workflows/*
-!.github/workflows/package-and-publish.yml
 
 # TeleTwin: build output is deployed by deploy-web.sh, not tracked
 /dist
 /tauri/target
 /tauri/gen
 /tauri/permissions
+/tauri/tauri.version.json
