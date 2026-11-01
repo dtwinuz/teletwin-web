@@ -192,7 +192,7 @@ teletwin-web/
 ├── mobile/                    # Android Capacitor qobiq (uz.dtwin.teletwin)
 │   ├── capacitor.config.json  #   ochiladigan web manzil
 │   └── android/               #   Gradle loyiha, TeleTwinBridge.java, teletwin_bridge.js
-├── .github/workflows/         # teletwin-desktop.yml, teletwin-android.yml (+ upstream package-and-publish.yml)
+├── .github/workflows/         # teletwin-desktop.yml, teletwin-android.yml (workflow fayllari gitignore'da: git add -f)
 ├── docs/UPSTREAM-README.md    # asl Telegram Web A README'si
 └── LICENSE                    # GPL-3.0
 ```
@@ -287,7 +287,8 @@ flowchart LR
   home sahifaning [yuklab olish bo'limida](https://tele.dtwin.uz/#download), SHA-256 —
   [downloads.json](https://tele.dtwin.uz/download/downloads.json). Windows setup
   [dtwinuz/teletwin v0.1.0](https://github.com/dtwinuz/teletwin/releases/tag/v0.1.0) relizida ham bor. Desktop paketlari kod-imzosiz.
-- Upstream'dan qolgan `package-and-publish.yml` faqat `master` push yoki qo'lda ishga tushadi — TeleTwin uchun ishlatilmaydi.
+- Upstream'ning `package-and-publish.yml` (Electron paket, `master` push, upstream nashri) o'chirilgan: TeleTwin paketlari
+  faqat `teletwin-desktop.yml` va `teletwin-android.yml` dan chiqadi. Upstream yangilanishi olinganda bu fayl qayta qo'shilmasin.
 
 ## 📜 Tarix
 
