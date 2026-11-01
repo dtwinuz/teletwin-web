@@ -167,7 +167,7 @@ nuqtaviy "ilgaklar" (har birida `TeleTwin:` izohi). Asosiylari:
 | Korxona API | `fetch` REST klient (`src/teletwin/api.ts`) |
 | Desktop | Tauri 2 (Rust) — `tauri/tauri.teletwin.conf.json` |
 | Android | Capacitor 8, Java (`TeleTwinBridge`: bildirishnoma, yuklab olish) |
-| CI | GitHub Actions: `teletwin-desktop.yml`, `teletwin-android.yml` |
+| CI | GitHub Actions: `teletwin-web-ci.yml` (PR: tsc + eslint + vitest), `teletwin-desktop.yml`, `teletwin-android.yml` |
 | Node | `.node-version` = 26 |
 
 ## 📁 Tuzilma
@@ -212,7 +212,7 @@ Production build (statik fayllar `dist/` ga):
 ```sh
 BASE_URL=https://example.com/web/ npm run build:production
 npm run check                 # tsc + eslint + stylelint
-npm test                      # vitest (upstream testlari)
+npm test                      # vitest (upstream + src/teletwin testlari)
 ```
 
 Desktop paket (Rust toolchain kerak; CI'dagi bilan bir xil konfiguratsiya):
@@ -313,7 +313,6 @@ PR [#2](https://github.com/dtwinuz/teletwin-web/pull/2) (Android klaviatura) —
 
 To'liq reja va holat: **[GitHub Project #9](https://github.com/orgs/dtwinuz/projects/9)**.
 
-- 🧪 Sifat: `src/teletwin/` uchun unit testlar (guard, ids), web uchun PR CI (tsc + eslint + vitest)
 - 🧩 Korxona funksiyalarini to'liq tasdiqlash: forward, hujjat, round video, sticker, ro'yxatdan o'tish oqimi
 - 🌐 TeleTwin matnlari hozir faqat o'zbekcha — rus va ingliz tarjimasi
 - 📦 Desktop kod-imzosi va auto-update, Android release (Play) imzosi, GitHub Release
@@ -323,7 +322,8 @@ To'liq reja va holat: **[GitHub Project #9](https://github.com/orgs/dtwinuz/proj
 
 ## 🤝 Hissa / ish tartibi
 
-- Default branch: **`teletwin`**. Har o'zgarish alohida branch → PR → `teletwin`.
+- Default branch: **`teletwin`**. Har o'zgarish alohida branch → PR → `teletwin`. PR'da `teletwin-web-ci.yml`
+  `tsc`, `eslint` (`src/teletwin/` + PR o'zgartirgan fayllar; upstream kodi joriy eslint bilan toza emas) va `npm test` ni yurgizadi.
 - Korxona kodi `src/teletwin/` da. Web A fayliga tegish kerak bo'lsa — minimal ilgak va `// TeleTwin: ...` izohi,
   shunda upstream bilan solishtirish oson.
 - Commit sarlavhasi upstream uslubida, inglizcha: `TeleTwin / Corp: ...`, `TeleTwin / Android: ...`, `[CI] Tauri: ...`.
