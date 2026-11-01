@@ -52,21 +52,23 @@ Belgilar: ✅ kod bor va ishlatilmoqda · 🟡 kod bor, to'liq sinalmagan · �
 |---|---|---|
 | Telegram akkaunti bilan to'liq Web A (shaxsiy chatlar, kanallar, media) | ✅ | upstream |
 | "Korxona" lokal papkasi: korxona guruhlari, kanallari, shaxsiy (DM) chatlar | ✅ | `src/teletwin/state.ts`, `ids.ts` |
-| Majburiy korxona kirishi (CorpGate): login yoki ro'yxatdan o'tish → admin tasdig'i | ✅ | `components/CorpGate.tsx`, `index.ts` |
+| Majburiy korxona kirishi (CorpGate): login yoki ro'yxatdan o'tish → admin tasdig'i | ✅ prod E2E¹ + unit (`registration.test.ts`) | `components/CorpGate.tsx`, `index.ts` |
 | Xabar: yuborish, javob (reply), tahrir, o'chirish, ✓✓ o'qildi, typing, pin | ✅ | `provider.ts`, `engine.ts` |
-| Reaksiya, forward (faqat korxona chatlari ichida) | 🟡 | `provider.ts` |
-| Media: rasm, ovozli xabar, video, fayl (korxona serveridan, keshsiz) | 🟡 rasm/ovoz sinalgan, hujjat/round/sticker to'liq emas | `media.ts` |
+| Reaksiya, forward (faqat korxona chatlari ichida; Telegram'ga forward bloklangan) | ✅ E2E¹ + unit (`forward.test.ts`) | `provider.ts` |
+| Media: rasm, ovozli xabar, video, fayl, round video, sticker (korxona serveridan, keshsiz) | ✅ E2E¹ (hujjat sha256, round, sticker, voice) · 🟡 round/sticker UI ko'rinishi qo'lda sinalmagan | `media.ts` |
 | Mention (`@all`, `@here`), @ hisoblagich, ovozli "uyg'otish" (wake-up) | ✅ | `wakeup.ts`, `CorpWakeUp.tsx` |
-| So'rovnoma (poll), rejalashtirilgan xabar, thread (guruh va kanal) | 🟡 | `provider.ts`, `CorpThread.tsx` |
-| Jira kartochkasi (havola ustida hover / uzoq bosish), guruh mention | 🟡 | `CorpJiraCard.tsx` |
-| Holat va DND ("Holatim"), xodim profili ("Profilim") | 🟡 | `status.ts`, `CorpStatus.tsx`, `CorpProfile.tsx` |
-| Saqlangan xabarlar + eslatma, "Faollik" lentasi, "Kanallar katalogi" | 🟡 | `saved.ts`, `activity.ts`, `CorpDirectory.tsx` |
-| Global qidiruvda korxona xabarlari | 🟡 | `src/global/actions/api/globalSearch.ts` |
+| So'rovnoma (poll), rejalashtirilgan xabar, thread (guruh va kanal) | ✅ E2E¹ | `provider.ts`, `CorpThread.tsx` |
+| Jira kartochkasi (havola ustida hover / uzoq bosish), guruh mention | ✅ proksi E2E¹ · 🟡 prodda Jira ulanishi server sozlamasiga bog'liq | `CorpJiraCard.tsx` |
+| Holat va DND ("Holatim"), xodim profili ("Profilim") | ✅ E2E¹ (holat, DND, uyg'otish 409/force, keyword) | `status.ts`, `CorpStatus.tsx`, `CorpProfile.tsx` |
+| Saqlangan xabarlar + eslatma, "Faollik" lentasi, "Kanallar katalogi" | ✅ E2E¹ (eslatma vaqtida keladi) | `saved.ts`, `activity.ts`, `CorpDirectory.tsx` |
+| Global qidiruvda korxona xabarlari | ✅ server qidiruvi E2E¹ · 🟡 UI | `src/global/actions/api/globalSearch.ts` |
 | Revoke → korxona ma'lumoti darhol tozalanadi, offline keshda saqlanmaydi | ✅ | `src/global/cache.ts`, `engine.ts` |
 | Desktop: Windows (NSIS), macOS (arm64/x64 DMG), Linux (deb, AppImage) | ✅ CI build · ✅ auto-update (Tauri updater) · 🟡 kod-imzosiz | `tauri/`, `teletwin-desktop.yml` |
 | Android APK (tester kaliti bilan imzolangan), bildirishnoma va yuklab olish bridge | ✅ CI build | `mobile/`, `teletwin-android.yml` |
 | iOS ilova | 🔜 | — |
 | Korxona ichida audio/video qo'ng'iroq | 🔜 (dizayn asosiy repo'da) | — |
+
+¹ E2E: [`dtwinuz/teletwin` `tests/e2e`](https://github.com/dtwinuz/teletwin/tree/main/tests/e2e) — ikki test akkaunt, faqat test chat, prodda (`npm run e2e:prod`); server kontrakti va real vaqt hodisalarini isbotlaydi, Web A UI'ning chizilishini emas.
 
 ## 🏗 Arxitektura
 
