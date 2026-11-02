@@ -41,6 +41,7 @@ import { useHotkeys } from '../../hooks/useHotkeys';
 import useLang from '../../hooks/useLang';
 import useLastCallback from '../../hooks/useLastCallback';
 
+import { CorpCallButton } from '../../teletwin/components/CorpCall';
 import CustomEmoji from '../common/CustomEmoji';
 import Icon from '../common/icons/Icon';
 import Button from '../ui/Button';
@@ -368,6 +369,7 @@ const HeaderActions = ({
               iconName="phone"
             />
           )}
+          <CorpCallButton chatId={chatId} />
         </>
       )}
       {!isForForum && Boolean(pendingJoinRequests) && (

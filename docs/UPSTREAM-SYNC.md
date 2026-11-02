@@ -71,10 +71,10 @@ Qator raqamlari — fork faylidagi o'rin, `+N` — o'zgargan qatorlar soni. Korx
 | `src/hooks/useFolderTabs.ts` | 19+1, 116+2, 121+2 | "Korxona" papkasini ulashish/tahrirlash/o'chirish yo'q |
 | `src/components/left/search/ChatMessage.tsx` | 28+1, 85+3, 89+1 | qidiruvdan korxona thread javobi o'z thread'ida ochiladi |
 | `src/components/left/main/LeftSideMenuItems.tsx` | 40+1, 221+1 | chap menyuda korxona bandi (`CorpMenuItem`) |
-| `src/components/main/Main.tsx` | 61+1, 652+1 | `CorpRoot` (Gate, panellar) ulanadi |
+| `src/components/main/Main.tsx` | 61+1, 652+1 | `CorpRoot` (Gate, panellar, qo'ng'iroq oynasi) ulanadi |
 | `src/components/main/Dialogs.tsx` | 91+2, 155+1 | dialog va xato sarlavhasi "TeleTwin" (brend, #21) |
 | `src/components/ui/ConfirmDialog.tsx` | 69+2 | tasdiqlash oynasining standart sarlavhasi "TeleTwin" (brend, #21) |
-| `src/components/middle/HeaderActions.tsx` | 38+1, 470+1 | korxona chatida Telegram'ning sarlavha amali o'chiriladi (`!isCorpChatId`) |
+| `src/components/middle/HeaderActions.tsx` | 38+1, 44+1, 372+1, 472+1 | korxona chatida Telegram'ning sarlavha amali o'chiriladi (`!isCorpChatId`), o'rniga korxona qo'ng'irog'i tugmasi (`CorpCallButton`) |
 | `src/components/middle/HeaderMenuContainer.tsx` | 61+1, 647+1 | chat menyusida "uyg'otish" bandi (`CorpWakeUpHeaderItem`) |
 | `src/components/middle/message/ContextMenuContainer.tsx` | 85+1, 906+2, 1042+1, 1058+1, 1065+2 | korxona xabarida havola nusxasi, shikoyat, "kim ko'rdi" yo'q |
 | `src/components/middle/message/MessageContextMenu.tsx` | 43+3, 603+8 | thread'da javob, saqlash/eslatma, uyg'otish bandlari |
@@ -91,7 +91,7 @@ Qator raqamlari — fork faylidagi o'rin, `+N` — o'zgargan qatorlar soni. Korx
 | `vite.config.ts` | 80+1, 294+2 | sarlavha TeleTwin, CSP `connect-src` ga `dtwin.uz` |
 | `vitest.config.ts` | 1+1, 15+2 | `tests/` yo'q bo'lsa setup fayli ixtiyoriy |
 | `eslint.config.js` | 40+1 | `mobile/` lint'dan chiqarilgan |
-| `package.json` | 107+1 | `@microsoft/signalr` (korxona hub) |
+| `package.json` | 107+1, 136+1 | `@microsoft/signalr` (korxona hub), `livekit-client` (korxona qo'ng'iroqlari) |
 
 ### Brend va konfiguratsiya (konfliktda doim forkniki)
 

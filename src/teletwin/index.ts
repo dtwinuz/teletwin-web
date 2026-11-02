@@ -6,6 +6,7 @@ import type { CorpCredentials, PendingRegistration } from './storage';
 
 import { selectTabState } from '../global/selectors';
 import { getCurrentTabId } from '../util/establishMultitabRole';
+import { getServerTime } from '../util/serverTime';
 import { createSignal } from '../util/signals';
 import { updatePeerColors } from '../util/theme';
 import { clearCorpActivity, loadCorpActivity } from './activity';
@@ -13,6 +14,7 @@ import {
   CorpApiError, DEFAULT_CORP_SERVER, isCorpUnauthorized, loginCorp, normalizeCorpServer, registerCorp,
   wakeUpCorpEmployee,
 } from './api';
+import { handleCorpCallHubEvent, resetCorpCalls, setCorpCallEnv } from './calls';
 import { corpEngine } from './engine';
 import { isCorpChatId } from './ids';
 import { clearCorpSaved, handleCorpReminder, loadCorpSaved } from './saved';
@@ -31,6 +33,7 @@ export type CorpLoginError = 'TeleTwinErrorCredentials' | 'TeleTwinErrorNetwork'
 export type CorpRegisterError = 'TeleTwinErrorLoginTaken' | 'TeleTwinErrorNetwork' | 'TeleTwinErrorRejected';
 
 const PENDING_RETRY_INTERVAL = 15000;
+const MS_IN_SECOND = 1000;
 const HTTP_CONFLICT = 409;
 
 const [getCorpCredentials, setCorpCredentials] = createSignal<CorpCredentials | undefined>();
@@ -59,7 +62,20 @@ export function initTeleTwin() {
     void loadCorpActivity();
   };
   corpEngine.onReminder = handleCorpReminder;
+  corpEngine.onCallEvent = handleCorpCallHubEvent;
+  setCorpCallEnv({
+    getCredentials: () => {
+      const credentials = corpEngine.credentials;
+      return credentials && corpEngine.hasSession
+        ? { server: credentials.server, token: credentials.token, employeeId: credentials.employee.id }
+        : undefined;
+    },
+    handleFailure: (err) => corpEngine.handleFailure(err),
+    getNow: () => getServerTime() * MS_IN_SECOND,
+  });
   corpEngine.onSessionChange = (isActive) => {
+    // Logout, revoke or a 401 tears down an active call
+    resetCorpCalls();
     clearCorpSaved();
     clearCorpActivity();
     if (isActive) {

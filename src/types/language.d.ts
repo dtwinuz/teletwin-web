@@ -3451,6 +3451,30 @@ export interface LangPair {
   'TeleTwinWakeUpTooSoon': undefined;
   'TeleTwinWakeUpOpen': undefined;
   'TeleTwinWakeUpSound': undefined;
+  'TeleTwinCall': undefined;
+  'TeleTwinCallJoin': undefined;
+  'TeleTwinCallIncoming': undefined;
+  'TeleTwinCallAccept': undefined;
+  'TeleTwinCallDecline': undefined;
+  'TeleTwinCallRinging': undefined;
+  'TeleTwinCallConnecting': undefined;
+  'TeleTwinCallYou': undefined;
+  'TeleTwinCallMute': undefined;
+  'TeleTwinCallUnmute': undefined;
+  'TeleTwinCallVideo': undefined;
+  'TeleTwinCallLeave': undefined;
+  'TeleTwinCallEndForAll': undefined;
+  'TeleTwinCallEnableAudio': undefined;
+  'TeleTwinCallCalleeOffline': undefined;
+  'TeleTwinCallCalleeBusy': undefined;
+  'TeleTwinCallFull': undefined;
+  'TeleTwinCallUnavailable': undefined;
+  'TeleTwinCallDeclined': undefined;
+  'TeleTwinCallNoAnswer': undefined;
+  'TeleTwinCallEnded': undefined;
+  'TeleTwinCallRemoved': undefined;
+  'TeleTwinCallFailed': undefined;
+  'TeleTwinCallNoMicrophone': undefined;
 }
 
 export interface LangPairWithVariables<V = LangVariable> {
@@ -5739,6 +5763,9 @@ export interface LangPairWithVariables<V = LangVariable> {
   'TeleTwinWakeUpIncoming': {
     'name': V;
   };
+  'TeleTwinCallParticipants': {
+    'count': V;
+  };
 }
 
 export interface LangPairPlural {
@@ -6935,7 +6962,8 @@ export interface LangKeyGroups {
       | 'GiveawayStarsPrepaidTitle'
       | 'SimilarChannelsLimitSubtitle'
       | 'TeleTwinDirectoryMembers'
-      | 'TeleTwinDirectorySubscribers';
+      | 'TeleTwinDirectorySubscribers'
+      | 'TeleTwinCallParticipants';
     variables: 'count';
   };
   'duration,time': {
