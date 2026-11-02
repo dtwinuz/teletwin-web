@@ -64,7 +64,7 @@ Belgilar: ✅ kod bor va ishlatilmoqda · 🟡 kod bor, to'liq sinalmagan · �
 | Global qidiruvda korxona xabarlari | ✅ server qidiruvi E2E¹ · 🟡 UI | `src/global/actions/api/globalSearch.ts` |
 | Revoke → korxona ma'lumoti darhol tozalanadi, offline keshda saqlanmaydi | ✅ | `src/global/cache.ts`, `engine.ts` |
 | Desktop: Windows (NSIS), macOS (arm64/x64 DMG), Linux (deb, AppImage) | ✅ CI build · ✅ auto-update (Tauri updater) · 🟡 kod-imzosiz | `tauri/`, `teletwin-desktop.yml` |
-| Android APK (tester kaliti bilan imzolangan), bildirishnoma va yuklab olish bridge | ✅ CI build | `mobile/`, `teletwin-android.yml` |
+| Android APK (tester kaliti bilan imzolangan), bildirishnoma va yuklab olish bridge | ✅ CI build · ✅ auto-update (SHA-256 tekshiruvi) | `mobile/`, `teletwin-android.yml` |
 | iOS ilova | 🔜 | — |
 | Korxona ichida audio/video qo'ng'iroq | 🔜 (dizayn asosiy repo'da) | — |
 
@@ -314,9 +314,21 @@ flowchart LR
   [GitHub Release](https://github.com/dtwinuz/teletwin-web/releases) yaratadi: Windows setup, macOS DMG (arm64, x64),
   Linux deb/AppImage, Android APK, tavsifda SHA-256 ro'yxati va `latest.json` (updater manifesti). Versiya o'rnatilganidan
   katta bo'lsin (birinchi desktop paketlar `2.12.2`), tag `v*` ruleset bilan himoyalangan (o'chirib/surib bo'lmaydi).
-- **Desktop auto-update:** o'rnatilgan qobiq `releases/latest/download/latest.json` ni tekshiradi, imzoni ochiq kalit bilan
-  solishtiradi va chap ustundagi "Update" tugmasi orqali yangisini o'rnatib qayta ishga tushadi. Updater faqat shu
-  o'zgarishdan keyin qurilgan paketlarda bor — eski `2.12.2` paketlar yangisini bir marta qo'lda o'rnatishi kerak.
+- **Desktop auto-update:** o'rnatilgan qobiq TeleTwin update kanalini so'raydi
+  (`https://tele.dtwin.uz/api/updates/tauri/{{target}}/{{arch}}/{{current_version}}`, kontrakt:
+  [`dtwinuz/teletwin` `docs/client-contract.md`](https://github.com/dtwinuz/teletwin/blob/main/docs/client-contract.md) "Auto-update channel");
+  kanal javob bermasa — GitHub Release `latest.json`. Tauri minisign imzoni ochiq kalit bilan tekshiradi (imzosiz yoki
+  boshqa kalit bilan imzolangan paket o'rnatilmaydi) va chap ustundagi "Update" tugmasi orqali yangisini o'rnatib qayta
+  ishga tushadi. Kanal yangilikni faqat installer yonida `<fayl>.sig` bo'lsa beradi: relizdan keyin `*-setup.exe`,
+  `*.AppImage`, `*.app.tar.gz` ni `.sig` fayllari bilan birga `deploy/deploy-downloads.sh` (teletwin repo) orqali
+  `/download/` ga yuklang. Updater faqat #39 dan keyin qurilgan paketlarda bor — eski `2.12.2` paketlar yangisini bir
+  marta qo'lda o'rnatishi kerak.
+- **Android auto-update:** ilova ishga tushganda (keyin ochiq tursa 24 soatda bir) `GET /api/updates/android?current=<versionName>`
+  so'raydi; `200` bo'lsa "Yangi versiya" oynasi → APK `cache/updates/` ga yuklanadi, **SHA-256 kanal qiymati bilan
+  solishtiriladi** (mos kelmasa fayl o'chiriladi, o'rnatilmaydi) → tizim installer'i. APK faqat `tele.dtwin.uz/download/`
+  yoki `dtwin.uz/teletwin/download/` dan olinadi. Birinchi marta Android "noma'lum ilovalarni o'rnatish" ruxsatini so'raydi.
+  Kod: `mobile/android/app/src/main/java/uz/dtwin/teletwin/AppUpdater.java`. Yangi APK bir xil (tester) kalit bilan
+  imzolangan bo'lishi kerak, aks holda Android ustiga o'rnatmaydi.
 - Push build'lar GitHub Actions artefakti sifatida chiqadi (muddati o'tadi). Tarqatilayotgan paketlar
   (desktop `TeleTwin_2.12.2_*` — Windows setup, macOS arm64/x64 DMG, Linux deb/AppImage; Android `TeleTwin-1.0.4-android.apk`)
   home sahifaning [yuklab olish bo'limida](https://tele.dtwin.uz/#download), SHA-256 —

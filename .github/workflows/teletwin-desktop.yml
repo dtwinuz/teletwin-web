@@ -1,6 +1,8 @@
 # TeleTwin desktop packages: a Tauri shell that opens the hosted web app (BASE_URL),
 # so web deploys update every desktop install. The shell itself updates through the Tauri updater:
-# it reads latest.json of the latest GitHub Release (teletwin-release.yml) and checks the signature
+# it asks the TeleTwin update channel (tele.dtwin.uz/api/updates/tauri/..., built from the installers and
+# their .sig files published to /download/), falls back to latest.json of the latest GitHub Release
+# (teletwin-release.yml) only when the channel is unreachable, and checks the minisign signature
 # against the public key in tauri/tauri.teletwin.updater.conf.json. Not code-signed (no OS certificate yet).
 
 name: TeleTwin desktop

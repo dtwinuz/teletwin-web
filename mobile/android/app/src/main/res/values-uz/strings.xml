@@ -4,4 +4,12 @@
     <string name="download_saved">Saqlandi: %1$s</string>
     <string name="download_failed">Yuklab bo\'lmadi: %1$s</string>
     <string name="mic_silenced">Android mikrofonni o\'chirib qo\'ydi: ovozli xabar bo\'sh yoziladi. Mikrofonni ishlatayotgan boshqa ilovalarni yoping va yozish paytida TeleTwin\'ni ochiq tuting.</string>
+    <string name="update_title">Yangi versiya</string>
+    <string name="update_message">TeleTwin %1$s chiqdi (o\'rnatilgan: %2$s).</string>
+    <string name="update_install">Yangilash</string>
+    <string name="update_later">Keyinroq</string>
+    <string name="update_downloading">Yangilanish yuklanmoqda\u2026</string>
+    <string name="update_checksum_failed">Yangilanish rad etildi: fayl nazorat yig\'indisi (SHA-256) mos emas. Keyinroq urinib ko\'ring.</string>
+    <string name="update_failed">Yangilanishni yuklab bo\'lmadi</string>
+    <string name="update_allow_install">TeleTwin\'ga ilova o\'rnatishga ruxsat bering va TeleTwin\'ni qayta oching</string>
 </resources>
