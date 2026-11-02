@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { getTeleTwinLocale, getTeleTwinString, TELETWIN_STRING_TABLES } from './strings';
+import {
+  BRAND_STRINGS, getTeleTwinLocale, getTeleTwinString, TELETWIN_STRING_TABLES,
+} from './strings';
 
 import fallback from '../assets/localization/fallback.strings?raw';
 
@@ -45,5 +47,18 @@ describe('TeleTwin strings', () => {
     expect(getTeleTwinString('Settings', 'ru')).toBeUndefined();
     expect(getTeleTwinString('TeleTwinSignIn', 'ru')).toBe('Войти');
     expect(getTeleTwinString('TeleTwinSignIn', 'en')).toBe('Sign in');
+  });
+
+  it('names the product TeleTwin where Web A calls itself Telegram, in every language', () => {
+    ['uz', 'ru', 'en', 'de'].forEach((langCode) => {
+      expect(getTeleTwinString('AuthTitle', langCode)).toBe('TeleTwin');
+      expect(getTeleTwinString('UpdateTelegram', langCode)).toContain('TeleTwin');
+    });
+    Object.entries(BRAND_STRINGS).forEach(([key, texts]) => {
+      Object.values(texts).forEach((text) => {
+        expect([key, text.includes('TeleTwin')]).toEqual([key, true]);
+        expect([key, /Telegram (Web|A\b)/.test(text)]).toEqual([key, false]);
+      });
+    });
   });
 });

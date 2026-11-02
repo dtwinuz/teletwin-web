@@ -1,7 +1,7 @@
 {
     "name": "TeleTwin",
     "short_name": "TeleTwin",
-    "description": "TeleTwin: Telegram client with a company workspace (Korxona chats on the TeleTwin server).",
+    "description": "TeleTwin: company messenger. Unofficial client built on the Telegram API, not affiliated with Telegram.",
     "start_url": "./",
     "gcm_sender_id": "122867383838",
     "icons": [
@@ -21,11 +21,6 @@
             "type": "image/png"
         }
     ],
-    "screenshots" : [{
-      "src": "screenshot.jpg",
-      "sizes": "1280x802",
-      "type": "image/jpeg"
-    }],
     "share_target": {
       "action": "./share/",
       "method": "POST",

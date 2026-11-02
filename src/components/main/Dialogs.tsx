@@ -88,7 +88,8 @@ const Dialogs = ({ dialogs, currentMessageList }: StateProps) => {
     );
   };
 
-  const renderTextDialog = (renderedText: TeactNode, title = 'Telegram') => {
+  // TeleTwin: default dialog and error titles are the product name, not "Telegram" (Telegram API Terms)
+  const renderTextDialog = (renderedText: TeactNode, title = 'TeleTwin') => {
     return (
       <Modal
         isOpen={isModalOpen}
@@ -151,7 +152,7 @@ function getErrorHeader(lang: LangFn, error: ApiDialogError) {
   }
 
   if (!error.hasErrorKey) {
-    return 'Telegram';
+    return 'TeleTwin'; // TeleTwin: product name in the error dialog header
   }
 
   return lang('SomethingWentWrong');
