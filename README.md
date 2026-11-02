@@ -65,7 +65,7 @@ Belgilar: ✅ kod bor va ishlatilmoqda · 🟡 kod bor, to'liq sinalmagan · �
 | Revoke → korxona ma'lumoti darhol tozalanadi, offline keshda saqlanmaydi | ✅ | `src/global/cache.ts`, `engine.ts` |
 | Desktop: Windows (NSIS), macOS (arm64/x64 DMG), Linux (deb, AppImage) | ✅ CI build · ✅ auto-update (Tauri updater) · 🟡 kod-imzosiz | `tauri/`, `teletwin-desktop.yml` |
 | Android APK (tester kaliti bilan imzolangan), bildirishnoma va yuklab olish bridge | ✅ CI build · ✅ auto-update (SHA-256 tekshiruvi) | `mobile/`, `teletwin-android.yml` |
-| iOS ilova | 🔜 | — |
+| iOS ilova | 🟡 Capacitor scaffold · TestFlight Apple Developer akkauntini kutmoqda (#19) | `mobile/ios` |
 | Korxona ichida audio/video qo'ng'iroq | 🔜 (dizayn asosiy repo'da) | — |
 
 ¹ E2E: [`dtwinuz/teletwin` `tests/e2e`](https://github.com/dtwinuz/teletwin/tree/main/tests/e2e) — ikki test akkaunt, faqat test chat, prodda (`npm run e2e:prod`); server kontrakti va real vaqt hodisalarini isbotlaydi, Web A UI'ning chizilishini emas.
@@ -248,11 +248,13 @@ iOS cheklovlari (Android'dagi `TeleTwinBridge` iOS'da yo'q, qurilmada hali sinal
 
 | Imkoniyat | iOS holati |
 |---|---|
-| Web ilova, login, korxona chatlari | `server.url` orqali, Android bilan bir xil |
+| Web ilova, login, korxona chatlari | `server.url` Android bilan bir xil: ikkalasi bitta `mobile/capacitor.config.json` dan (`https://dtwin.uz/teletwin/web/`); `cap sync ios` uni `ios/App/App/capacitor.config.json` ga ko'chiradi (gitignore'da) |
+| Ilova yangilanishi | web qismi serverdan (har deploy); qobiq — TestFlight/App Store orqali, Android'dagi `AppUpdater` (APK yuklash) iOS'da yo'q va bo'lmaydi (Apple taqiqlaydi) |
 | Bildirishnoma | yo'q: WKWebView web `Notification` API'ni bermaydi; kerak bo'lsa APNs + server push (alohida ish) |
 | Fayl yuklab olish | WKWebView `download` havolasini o'zi saqlamaydi; native `WKDownload`/share sheet ilgagi kerak (alohida ish) |
 | Mikrofon, kamera, galereya | `Info.plist` ruxsat matnlari bor (ovozli xabar, round video, rasm) |
 | `teletwin://` deep link | URL scheme ro'yxatdan o'tgan; ochilgan manzilni web ilovaga uzatish native kodi hali yo'q |
+| TestFlight build | Mac + Xcode va Apple Developer Program a'zoligi kerak (owner, #19); akkaunt bo'lmaguncha build/sinov yo'q |
 
 > [!TIP]
 > Korxona qismini sinash uchun TeleTwin server kerak — uni ishga tushirish [dtwinuz/teletwin](https://github.com/dtwinuz/teletwin) da.
