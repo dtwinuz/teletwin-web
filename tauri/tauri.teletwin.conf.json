@@ -17,6 +17,6 @@
   "bundle": {
     "copyright": "TeleTwin",
     "shortDescription": "TeleTwin",
-    "longDescription": "Telegram and company chats in one app"
+    "longDescription": "Company messenger. Unofficial client built on the Telegram API, not affiliated with Telegram."
   }
 }

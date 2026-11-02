@@ -194,8 +194,58 @@ export function getTeleTwinLocale(langCode?: string): TeleTwinLocale {
   return 'en';
 }
 
+// Web A keys where the app calls itself "Telegram" (Telegram API Terms: the product is TeleTwin). They win over every
+// language pack. Factual mentions (Telegram account, Telegram Premium, "open it in the Telegram app") are kept.
+export const BRAND_STRINGS: Record<string, Record<TeleTwinLocale, string>> = {
+  AuthTitle: { uz: 'TeleTwin', ru: 'TeleTwin', en: 'TeleTwin' },
+  UpdateTelegram: { uz: 'TeleTwin\'ni yangilash', ru: 'Обновить TeleTwin', en: 'Update TeleTwin' },
+  MessageUnsupported: {
+    uz: 'Bu xabar TeleTwin\'da hali ko\'rsatilmaydi',
+    ru: 'Это сообщение пока не поддерживается в TeleTwin',
+    en: 'This message is not supported in TeleTwin yet',
+  },
+  StoryUnsupported: {
+    uz: 'Bu hikoya TeleTwin\'da ko\'rsatilmaydi. Uni Telegram ilovasida oching.',
+    ru: 'Эта история не поддерживается в TeleTwin. Откройте её в приложении Telegram.',
+    en: 'This story is not supported in TeleTwin. Try viewing it in the Telegram app.',
+  },
+  VideoUnsupportedDesktop: {
+    uz: 'Afsuski, bu videoni TeleTwin\'da ijro etib bo\'lmaydi. Uni Telegram\'ning **desktop ilovasida** oching.',
+    ru: 'К сожалению, это видео нельзя воспроизвести в TeleTwin. Откройте его в **настольном приложении** Telegram.',
+    en: 'Unfortunately, this video can\'t be played in TeleTwin. Try opening it in the Telegram **desktop app**.',
+  },
+  VideoUnsupportedMobile: {
+    uz: 'Afsuski, bu videoni TeleTwin\'da ijro etib bo\'lmaydi. Uni Telegram\'ning **mobil ilovasida** oching.',
+    ru: 'К сожалению, это видео нельзя воспроизвести в TeleTwin. Откройте его в **мобильном приложении** Telegram.',
+    en: 'Unfortunately, this video can\'t be played in TeleTwin. Try opening it in the Telegram **mobile app**.',
+  },
+  SettingsPasscodeStart1: {
+    uz: 'Qo\'shimcha kod o\'rnatilsa, chatlar sahifasida qulf belgisi paydo bo\'ladi.\n'
+      + 'TeleTwin\'ni qulflash va ochish uchun uni bosing.',
+    ru: 'Если установить дополнительный код-пароль, на странице чатов появится значок замка.\n'
+      + 'Нажмите на него, чтобы заблокировать или разблокировать TeleTwin.',
+    en: 'When you set up an additional passcode, a lock icon will appear on the chats page.\n'
+      + 'Tap it to lock and unlock TeleTwin.',
+  },
+  SettingsPasscodeStart2: {
+    uz: 'Eslatma: mahalliy kodni unutsangiz, TeleTwin\'dan chiqib, qayta kirishingiz kerak bo\'ladi.',
+    ru: 'Внимание: если вы забудете код-пароль, придётся выйти из TeleTwin и войти снова.',
+    en: 'Note: if you forget your local passcode, you\'ll need to log out of TeleTwin and log in again.',
+  },
+  PaymentsProvidesNotSupported: {
+    uz: 'Afsuski, TeleTwin bu provayder orqali to\'lovni hali qo\'llab-quvvatlamaydi.\n'
+      + 'To\'lovni Telegram mobil ilovasida yakunlang.',
+    ru: 'К сожалению, TeleTwin пока не поддерживает оплату через этого провайдера.\n'
+      + 'Завершите оплату в мобильном приложении Telegram.',
+    en: 'Sorry, TeleTwin does not support payments with this provider yet.\n'
+      + 'Please use the Telegram mobile app to complete this payment.',
+  },
+};
+
 // `undefined` for Uzbek and for keys that are not TeleTwin keys: the caller then uses `fallback.strings`
 export function getTeleTwinString(langKey: string, langCode?: string) {
+  const brand = BRAND_STRINGS[langKey];
+  if (brand) return brand[getTeleTwinLocale(langCode)];
   if (!langKey.startsWith(KEY_PREFIX)) return undefined;
   const locale = getTeleTwinLocale(langCode);
   if (locale === 'uz') return undefined;

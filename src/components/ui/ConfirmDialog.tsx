@@ -66,7 +66,8 @@ const ConfirmDialog: FC<OwnProps> = ({
   return (
     <Modal
       className={buildClassName('confirm', className)}
-      title={(title || (!noDefaultTitle ? lang('Telegram') : undefined))}
+      // TeleTwin: default dialog title is the product name, not "Telegram" (Telegram API Terms)
+      title={(title || (!noDefaultTitle ? 'TeleTwin' : undefined))}
       header={header}
       isOpen={isOpen}
       onClose={onClose}
