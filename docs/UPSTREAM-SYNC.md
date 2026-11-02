@@ -119,5 +119,5 @@ Haqiqiy yangi upstream versiya bilan to'liq sikl (build + deploy + E2E) — upst
 
 2026-11-02 (02:57 UTC) qayta tekshirildi: `git ls-remote upstream` -> faqat `master` = `6002824`, eng yangi tag
 `v10.9.9`; `scripts/upstream-sync.sh` -> `already at upstream 6002824` (branch yaratilmadi). Shu holatda joriy
-`teletwin` (`99fc210`): `tsc --noEmit` toza, `npm test` 187/187, `npm run build:production` muvaffaqiyatli va
+`teletwin` (`a7e4d20`, #46 npm bump bilan): `tsc --noEmit` toza, `npm test` 187/187, `npm run build:production` muvaffaqiyatli va
 `/teletwin/web/` ga deploy qilindi.
