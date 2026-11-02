@@ -15,11 +15,14 @@ public class MainActivity extends BridgeActivity {
     private static final String DEEP_LINK_SCHEME = "teletwin";
 
     private TeleTwinBridge teleTwinBridge;
+    private AppUpdater appUpdater;
+    private boolean updateCheckedOnStart;
     private boolean clearHistoryOnLoad;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         teleTwinBridge = new TeleTwinBridge(this);
+        appUpdater = new AppUpdater(this);
         bridgeBuilder.addWebViewListener(
             new WebViewListener() {
                 @Override
@@ -52,6 +55,14 @@ public class MainActivity extends BridgeActivity {
                 }
             }
         );
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // "New version" check: on every start, then at most once per 24 hours while the app stays open.
+        appUpdater.checkIfDue(!updateCheckedOnStart);
+        updateCheckedOnStart = true;
     }
 
     @Override
