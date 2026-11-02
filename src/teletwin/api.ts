@@ -55,6 +55,8 @@ export interface CorpChatInfo {
   // The caller's own notification setting
   notifyLevel?: CorpNotifyLevel;
   mutedUntil?: string | null;
+  // The ongoing call of the chat, if any
+  call?: CorpChatCall | null;
 }
 
 export type CorpNotifyLevel = 'all' | 'mentions' | 'none';
@@ -279,10 +281,14 @@ export class CorpApiError extends Error {
 
   status?: number;
 
-  constructor(kind: CorpFailureKind, status?: number) {
+  // The `error` field of a JSON error body, e.g. `callee_busy`
+  code?: string;
+
+  constructor(kind: CorpFailureKind, status?: number, code?: string) {
     super(status ? `${kind} ${status}` : kind);
     this.kind = kind;
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -315,6 +321,15 @@ function buildForbiddenError(status: number, body: string) {
   return new CorpApiError('forbidden', status);
 }
 
+function parseErrorCode(body: string) {
+  try {
+    const { error } = JSON.parse(body) as { error?: unknown };
+    return typeof error === 'string' ? error : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 async function request<T>(server: string, method: string, path: string, token?: string, body?: unknown) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
@@ -343,7 +358,8 @@ async function request<T>(server: string, method: string, path: string, token?: 
   if (status === HTTP_TOO_MANY_REQUESTS) throw new CorpApiError('tooMany', status);
   if (!response.ok) {
     const isRejected = status >= HTTP_CLIENT_ERROR_MIN && status < HTTP_SERVER_ERROR_MAX;
-    throw new CorpApiError(isRejected ? 'rejected' : 'network', status);
+    const code = parseErrorCode(await response.text().catch(() => ''));
+    throw new CorpApiError(isRejected ? 'rejected' : 'network', status, code);
   }
   if (status === HTTP_NO_CONTENT) return undefined as T;
 
@@ -580,6 +596,7 @@ export async function downloadCorpFile(
 export interface CorpConfig {
   jiraBaseUrl?: string;
   jiraKeyPattern?: string;
+  callsEnabled?: boolean;
 }
 
 export function fetchCorpConfig(server: string, token: string) {
@@ -711,4 +728,90 @@ export function wakeUpCorpEmployee(
 // Replaces the whole status: omitted fields are cleared
 export function putCorpStatus(server: string, token: string, status: CorpStatusUpdate) {
   return request<CorpStatusFields>(server, 'PUT', 'me/status', token, status);
+}
+
+// ---- Calls (`docs/calls-design.md` 3.0 in the server repo) ----
+
+export type CorpCallState = 'ringing' | 'active' | 'ended';
+
+// `GET /api/chats` -> `chat.call`
+export interface CorpChatCall {
+  callId: number;
+  state: CorpCallState;
+  participantCount: number;
+  startedAt: string;
+  startedById: number;
+  ringExpiresAt?: string | null;
+  withVideo?: boolean;
+}
+
+export interface CorpCallParticipant {
+  employeeId: number;
+  fullName: string;
+  joinedAt?: string;
+  isMuted?: boolean;
+  isScreenSharing?: boolean;
+  hasVideo?: boolean;
+}
+
+// Full call snapshot, also the hub `call_updated` payload; `active: false` means the call ended
+export interface CorpCall {
+  callId: number;
+  chatId: number;
+  active: boolean;
+  state: CorpCallState;
+  startedAt: string;
+  startedById: number;
+  withVideo?: boolean;
+  ringExpiresAt?: string | null;
+  endedAt?: string | null;
+  endReason?: string | null;
+  participants: CorpCallParticipant[];
+}
+
+export interface CorpJoinCall {
+  callId: number;
+  chatId: number;
+  room: string;
+  // LiveKit server, `wss://…`
+  url: string;
+  token: string;
+  expiresAt: string;
+  canPublish: boolean;
+  call: CorpCall;
+}
+
+// Hub `call_ring`: sent to every device of the callee of a direct call
+export interface CorpCallRing {
+  callId: number;
+  chatId: number;
+  fromId: number;
+  fromName: string;
+  withVideo?: boolean;
+  expiresAt: string;
+}
+
+export type CorpRingEndReason = 'answered' | 'answered_elsewhere' | 'declined' | 'timeout' | 'cancelled' | 'revoked';
+
+// Hub `call_ring_ended`: sent to both sides
+export interface CorpCallRingEnded {
+  callId: number;
+  chatId: number;
+  reason: CorpRingEndReason;
+}
+
+export function joinCorpCall(server: string, token: string, chatId: number, withVideo?: boolean) {
+  return request<CorpJoinCall>(server, 'POST', `chats/${chatId}/call`, token, { withVideo: Boolean(withVideo) });
+}
+
+export function endCorpCall(server: string, token: string, chatId: number) {
+  return request<undefined>(server, 'DELETE', `chats/${chatId}/call`, token);
+}
+
+export function declineCorpCall(server: string, token: string, chatId: number) {
+  return request<undefined>(server, 'POST', `chats/${chatId}/call/decline`, token);
+}
+
+export function leaveCorpCall(server: string, token: string, chatId: number) {
+  return request<undefined>(server, 'POST', `chats/${chatId}/call/leave`, token);
 }

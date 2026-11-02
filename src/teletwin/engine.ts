@@ -3,7 +3,8 @@
 //  - hub: WebSockets only, `access_token` query, `Ready()` after connect, then catch up every loaded chat
 //    with GET messages?afterId=<last id> and GET changes?since=<last sync>
 //  - events: `message`, `message_edited`, `messages_deleted`, `reactions`, `pins`, `read`, `typing`, `wakeup`,
-//    `presence`, `status_changed`, `mention`, `poll_updated`, `thread_updated`, `scheduled_changed`, `chats_changed` (reload chats), `logout` (revoke)
+//    `presence`, `status_changed`, `mention`, `poll_updated`, `thread_updated`, `scheduled_changed`, `chats_changed` (reload chats), `logout` (revoke),
+//    `call_updated`, `call_ring`, `call_ring_ended` (passed to `calls.ts`)
 //  - hub closed -> GET me: 401 -> revoke, otherwise reconnect with backoff 1 s, 2 s, 4 s ... 30 s (reset on connect)
 //  - any API 401 -> revoke
 // The engine keeps the loaded corp history (`messagesByChat`) and re-applies it after Telegram syncs replace
@@ -15,8 +16,10 @@ import { getActions, getGlobal, setGlobal } from '../global';
 import type { ApiMessage, ApiMessagePoll, ApiTypingStatus } from '../api/types';
 import type { GlobalState } from '../global/types';
 import type {
-  CorpChatInfo, CorpMention, CorpMessage, CorpPoll, CorpPresence, CorpReaction, CorpReminder, CorpThreadUpdate,
+  CorpCall, CorpCallRing, CorpCallRingEnded, CorpChatInfo, CorpMention, CorpMessage, CorpPoll, CorpPresence,
+  CorpReaction, CorpReminder, CorpThreadUpdate,
 } from './api';
+import type { CorpCallHubEvent } from './calls';
 import type { CorpLinkRule, CorpSnapshot } from './state';
 import type { CorpCredentials } from './storage';
 import { MAIN_THREAD_ID } from '../api/types';
@@ -107,6 +110,9 @@ class CorpEngine {
 
   // Session-scoped stores outside the engine (saved items, activity) reset and reload with the session
   onSessionChange?: (isActive: boolean) => void;
+
+  // Call config, call fields of the chat list and the call hub events
+  onCallEvent?: (event: CorpCallHubEvent) => void;
 
   linkRule?: CorpLinkRule;
 
@@ -451,7 +457,9 @@ class CorpEngine {
 
     try {
       const config = await fetchCorpConfig(credentials.server, credentials.token);
-      if (epoch !== this.epoch || !config?.jiraBaseUrl || !config.jiraKeyPattern) return;
+      if (epoch !== this.epoch) return;
+      this.onCallEvent?.({ type: 'config', isEnabled: Boolean(config?.callsEnabled) });
+      if (!config?.jiraBaseUrl || !config.jiraKeyPattern) return;
       this.linkRule = { baseUrl: config.jiraBaseUrl, pattern: new RegExp(config.jiraKeyPattern, 'g') };
       this.snapshot = undefined;
       this.relinkLoadedMessages();
@@ -503,6 +511,7 @@ class CorpEngine {
       const chats = await fetchCorpChats(credentials.server, credentials.token);
       if (epoch !== this.epoch) return;
       this.applyChats(chats);
+      this.onCallEvent?.({ type: 'chats', chats });
       void this.loadPresence();
     } catch (err) {
       if (epoch === this.epoch) this.handleFailure(err);
@@ -945,6 +954,9 @@ class CorpEngine {
     })));
     on<CorpMention>('mention', (mention) => this.applyMention(mention));
     on<unknown>('chats_changed', () => void this.loadChats());
+    on<CorpCall>('call_updated', (call) => this.onCallEvent?.({ type: 'updated', call }));
+    on<CorpCallRing>('call_ring', (ring) => this.onCallEvent?.({ type: 'ring', ring }));
+    on<CorpCallRingEnded>('call_ring_ended', (ended) => this.onCallEvent?.({ type: 'ringEnded', ended }));
     // Own scheduled messages changed on this or another device, or the server sent one
     on<{ chatId: number }>('scheduled_changed', ({ chatId }) => {
       if (this.getChatInfo(chatId)) getActions().loadScheduledHistory({ chatId: buildCorpChatId(chatId) });
