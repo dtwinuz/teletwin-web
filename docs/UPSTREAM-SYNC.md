@@ -51,7 +51,7 @@ Keyin qo'lda:
 
 ## Ilgaklar ro'yxati (fork o'zgartirgan upstream fayllar)
 
-`scripts/upstream-sync.sh --hooks` bilan qayta yaratiladi (asos `6002824`, `origin/teletwin` 2026-11-01).
+`scripts/upstream-sync.sh --hooks` bilan qayta yaratiladi (asos `6002824`, `origin/teletwin` `99fc210`, 2026-11-02).
 Qator raqamlari — fork faylidagi o'rin, `+N` — o'zgargan qatorlar soni. Korxona qatlamining asosiy kodi
 `src/teletwin/` da (upstream'da yo'q, konflikt bermaydi).
 
@@ -72,6 +72,8 @@ Qator raqamlari — fork faylidagi o'rin, `+N` — o'zgargan qatorlar soni. Korx
 | `src/components/left/search/ChatMessage.tsx` | 28+1, 85+3, 89+1 | qidiruvdan korxona thread javobi o'z thread'ida ochiladi |
 | `src/components/left/main/LeftSideMenuItems.tsx` | 40+1, 221+1 | chap menyuda korxona bandi (`CorpMenuItem`) |
 | `src/components/main/Main.tsx` | 61+1, 652+1 | `CorpRoot` (Gate, panellar) ulanadi |
+| `src/components/main/Dialogs.tsx` | 91+2, 155+1 | dialog va xato sarlavhasi "TeleTwin" (brend, #21) |
+| `src/components/ui/ConfirmDialog.tsx` | 69+2 | tasdiqlash oynasining standart sarlavhasi "TeleTwin" (brend, #21) |
 | `src/components/middle/HeaderActions.tsx` | 38+1, 470+1 | korxona chatida Telegram'ning sarlavha amali o'chiriladi (`!isCorpChatId`) |
 | `src/components/middle/HeaderMenuContainer.tsx` | 61+1, 647+1 | chat menyusida "uyg'otish" bandi (`CorpWakeUpHeaderItem`) |
 | `src/components/middle/message/ContextMenuContainer.tsx` | 85+1, 906+2, 1042+1, 1058+1, 1065+2 | korxona xabarida havola nusxasi, shikoyat, "kim ko'rdi" yo'q |
@@ -98,6 +100,9 @@ Qator raqamlari — fork faylidagi o'rin, `+N` — o'zgargan qatorlar soni. Korx
 | `index.html` | 13+1, 33+1, 41+1, 67+1 (sarlavha, tavsif) |
 | `public/site*.webmanifest` (4 ta) | 2+3 |
 | `public/favicon.svg`, `public/favicon-unread.svg` | 1+6, 1+7 |
+| `src/assets/telegram-logo.svg`, `src/assets/telegram-logo-filled.svg` | 1+1 (login va media-session logosi = TeleTwin logosi, fayl nomi upstream'niki) |
+| `src/assets/app-inactive.png` | binar ("boshqa tabda ochiq" rasmi, TeleTwin tablari) |
+| `public/screenshot.jpg` | o'chirilgan (Telegram UI skrinshoti; manifest `screenshots` olib tashlangan) — upstream qaytarsa o'chirilgan holda qoldiring |
 | `public/*.png`, `public/favicon.ico` (20 ta), `tauri/icons/**` (14 ta) | binar |
 | `tauri/Cargo.lock` | 902+1, 4139+1, 4141+1, 5402+1 (Dependabot: rustls va bog'liqlari) |
 | `.gitignore`, `README.md` | TeleTwin matni |
@@ -111,3 +116,8 @@ qo'shildi, konflikt faqat 4 ta faylda — aynan upstream o'sha qatorlarni o'zgar
 
 Haqiqiy yangi upstream versiya bilan to'liq sikl (build + deploy + E2E) — upstream `master` hali `6002824` da
 (2026-10-26 `[Build]`), birinchi yangi reliz chiqqanda shu hujjat bo'yicha bajariladi va natija shu bo'limga yoziladi.
+
+2026-11-02 (02:57 UTC) qayta tekshirildi: `git ls-remote upstream` -> faqat `master` = `6002824`, eng yangi tag
+`v10.9.9`; `scripts/upstream-sync.sh` -> `already at upstream 6002824` (branch yaratilmadi). Shu holatda joriy
+`teletwin` (`a7e4d20`, #46 npm bump bilan): `tsc --noEmit` toza, `npm test` 187/187, `npm run build:production` muvaffaqiyatli va
+`/teletwin/web/` ga deploy qilindi.
