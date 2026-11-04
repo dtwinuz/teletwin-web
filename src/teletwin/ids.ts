@@ -12,6 +12,8 @@ const RE_DIGITS = /^\d+$/;
 
 // Telegram folder ids are 2..255, so the corp folder id stays local-only (same value as `Corp::kCorpFilterId`)
 export const CORP_FOLDER_ID = 0x40000000;
+// The corp web apps folder ("Ilovalar"): local-only too, its tab renders the app list instead of chats
+export const APPS_FOLDER_ID = 0x40000001;
 
 // Direct chats render as private chats with the other employee, so their chat id is that employee's user id
 const directPeerByChat = new Map<number, number>();
@@ -72,7 +74,11 @@ export function isCorpBare(value: number) {
 }
 
 export function isCorpFolderId(folderId?: number) {
-  return folderId === CORP_FOLDER_ID;
+  return folderId === CORP_FOLDER_ID || folderId === APPS_FOLDER_ID;
+}
+
+export function isAppsFolderId(folderId?: number) {
+  return folderId === APPS_FOLDER_ID;
 }
 
 // Corp media ids carry the server file ids: `teletwin-corp:<fileId>` or `teletwin-corp:<fileId>~<thumbFileId>`.

@@ -15,6 +15,7 @@ import buildClassName from '../../../util/buildClassName';
 import captureEscKeyListener from '../../../util/captureEscKeyListener';
 import { captureEvents, SwipeDirection } from '../../../util/captureEvents';
 import { resolveTransitionName } from '../../../util/resolveTransitionName';
+import { isAppsFolderId } from '../../../teletwin/ids';
 
 import useDerivedState from '../../../hooks/useDerivedState';
 import useFolderTabs from '../../../hooks/useFolderTabs';
@@ -24,6 +25,7 @@ import useLastCallback from '../../../hooks/useLastCallback';
 import useScrolledState from '../../../hooks/useScrolledState';
 import useShowTransition from '../../../hooks/useShowTransition';
 
+import CorpAppsPanel from '../../../teletwin/components/CorpAppsPanel';
 import StoryRibbon from '../../story/StoryRibbon';
 import Transition from '../../ui/Transition';
 import ChatFolderTabList from './ChatFolderTabList';
@@ -228,6 +230,11 @@ const ChatFolders = ({
   });
 
   function renderCurrentTab(isActive: boolean) {
+    // TeleTwin: the local apps folder shows the corp web apps instead of chats
+    if (isAppsFolderId(folderTabs?.[activeChatFolder]?.id)) {
+      return <CorpAppsPanel isActive={isActive} />;
+    }
+
     const activeFolder = Object.values(chatFoldersById)
       .find(({ id }) => id === folderTabs![activeChatFolder].id);
     const isFolder = activeFolder && !isInAllChatsFolder;

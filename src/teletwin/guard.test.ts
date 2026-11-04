@@ -2,7 +2,9 @@ import {
   beforeEach, describe, expect, it, vi,
 } from 'vitest';
 
-import { buildCorpChatId, buildCorpMediaId, buildCorpUserId, CORP_FOLDER_ID } from './ids';
+import {
+  APPS_FOLDER_ID, buildCorpChatId, buildCorpMediaId, buildCorpUserId, CORP_FOLDER_ID,
+} from './ids';
 
 const IMPLEMENTED = new Set(['sendMessage', 'fetchMessages']);
 const callCorpMethod = vi.fn((fnName: string) => (IMPLEMENTED.has(fnName) ? Promise.resolve('corp') : undefined));
@@ -65,6 +67,16 @@ describe('routeApiCall', () => {
       args: [[2, 3], 'x'],
     });
     expect(routeApiCall('sortChatFolders', [[2, 3]])).toEqual({ kind: 'telegram', args: [[2, 3]] });
+  });
+
+  it('keeps the apps folder away from Telegram folder methods', () => {
+    expect(routeApiCall('sortChatFolders', [[2, CORP_FOLDER_ID, APPS_FOLDER_ID, 3]])).toEqual({
+      kind: 'telegram',
+      args: [[2, 3]],
+    });
+    expect(routeApiCall('editChatFolder', [{ id: APPS_FOLDER_ID }]).kind).toBe('blocked');
+    expect(routeApiCall('deleteChatFolder', [APPS_FOLDER_ID]).kind).toBe('blocked');
+    expect(routeApiCall('fetchChatlistInvites', [{ folderId: APPS_FOLDER_ID }]).kind).toBe('blocked');
   });
 
   it('does not look inside class instances', () => {

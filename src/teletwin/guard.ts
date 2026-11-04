@@ -1,5 +1,5 @@
 import {
-  CORP_FOLDER_ID, hasCorpMediaReference, isCorpBare, isCorpPeerId,
+  hasCorpMediaReference, isCorpBare, isCorpFolderId, isCorpPeerId,
 } from './ids';
 import { callCorpMethod } from './provider';
 
@@ -18,9 +18,9 @@ export type RouteResult = { kind: 'telegram'; args: unknown[] }
   | { kind: 'blocked' };
 
 export function routeApiCall(fnName: string, args: unknown[]): RouteResult {
-  if (fnName === 'sortChatFolders' && Array.isArray(args[0]) && args[0].includes(CORP_FOLDER_ID)) {
-    // Reordering keeps working for Telegram folders, the local corp folder is left out
-    return { kind: 'telegram', args: [args[0].filter((id) => id !== CORP_FOLDER_ID), ...args.slice(1)] };
+  if (fnName === 'sortChatFolders' && Array.isArray(args[0]) && args[0].some(isCorpFolderId)) {
+    // Reordering keeps working for Telegram folders, the local corp and apps folders are left out
+    return { kind: 'telegram', args: [args[0].filter((id) => !isCorpFolderId(id)), ...args.slice(1)] };
   }
 
   const isFolderMethod = FOLDER_METHOD_RE.test(fnName);
@@ -50,7 +50,7 @@ function hasCorpReference(value: unknown, isFolderMethod: boolean, depth: number
     case 'string':
       return isCorpPeerId(value) || hasCorpMediaReference(value);
     case 'number':
-      return isCorpBare(value) || (isFolderMethod && value === CORP_FOLDER_ID);
+      return isCorpBare(value) || (isFolderMethod && isCorpFolderId(value));
     case 'bigint':
       return isCorpBare(Number(value));
     case 'object':
