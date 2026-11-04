@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  buildCorpChatId, buildCorpGroupMentionId, buildCorpMediaId, buildCorpPollId, buildCorpUserId,
+  APPS_FOLDER_ID, buildCorpChatId, buildCorpGroupMentionId, buildCorpMediaId, buildCorpPollId, buildCorpUserId,
   CORP_FOLDER_ID, CORP_MENTION_ALL_ID, CORP_MENTION_HERE_ID, getCorpDirectChatId, getCorpPollServerId,
-  getEmployeeId, getServerChatId, hasCorpMediaReference, isCorpBare, isCorpChatId, isCorpFolderId,
+  getEmployeeId, getServerChatId, hasCorpMediaReference, isAppsFolderId, isCorpBare, isCorpChatId, isCorpFolderId,
   isCorpMentionKeywordId, isCorpPeerId, isCorpThreadOnlyMessage, isCorpUserId, parseCorpMediaHash,
   registerCorpDirectChat,
 } from './ids';
@@ -84,6 +84,14 @@ describe('corp folder id', () => {
     expect(isCorpFolderId(CORP_FOLDER_ID)).toBe(true);
     expect(isCorpFolderId(2)).toBe(false);
     expect(isCorpFolderId(undefined)).toBe(false);
+  });
+
+  it('treats the apps folder as a local folder too', () => {
+    expect(APPS_FOLDER_ID).toBeGreaterThan(255);
+    expect(APPS_FOLDER_ID).not.toBe(CORP_FOLDER_ID);
+    expect(isCorpFolderId(APPS_FOLDER_ID)).toBe(true);
+    expect(isAppsFolderId(APPS_FOLDER_ID)).toBe(true);
+    expect(isAppsFolderId(CORP_FOLDER_ID)).toBe(false);
   });
 });
 

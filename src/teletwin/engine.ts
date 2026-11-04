@@ -32,9 +32,12 @@ import { getCurrentTabId } from '../util/establishMultitabRole';
 import { getTranslationFn } from '../util/localization';
 import { getServerTime } from '../util/serverTime';
 import {
-  buildCorpHubUrl, fetchCorpChanges, fetchCorpChats, fetchCorpConfig, fetchCorpEmployees, fetchCorpGroups, fetchCorpMe,
-  fetchCorpMessages, isCorpUnauthorized, logoutCorp, openCorpDirectChat,
+  buildCorpHubUrl, fetchCorpApps, fetchCorpChanges, fetchCorpChats, fetchCorpConfig, fetchCorpEmployees,
+  fetchCorpGroups, fetchCorpMe, fetchCorpMessages, isCorpUnauthorized, logoutCorp, openCorpDirectChat,
 } from './api';
+import {
+  clearCorpApps, getCorpApps, getCorpAppsStatus, setCorpApps, setCorpAppsStatus,
+} from './apps';
 import {
   buildCorpChatId, buildCorpPollId, buildCorpUserId, isCorpChatId, registerCorpDirectChat, setCorpGroupMentions,
 } from './ids';
@@ -253,6 +256,7 @@ class CorpEngine {
     this.readMarks = loadReadMarks(this.telegramUserId!, this.credentials!.employee.id);
     void this.loadConfig();
     void this.loadGroups();
+    void this.loadApps();
     void this.loadChats();
     this.connectHub();
     this.onSessionChange?.(true);
@@ -271,6 +275,7 @@ class CorpEngine {
     this.changesSince = {};
     this.pendingByClientId.clear();
     this.linkRule = undefined;
+    clearCorpApps();
     setCorpGroupMentions([]);
     clearCorpStatuses();
     clearCorpProfiles();
@@ -292,6 +297,8 @@ class CorpEngine {
         messagesByChat: this.messagesByChat,
         readMarks: this.readMarks,
         folderTitle: getTranslationFn()('TeleTwinFolderTitle'),
+        // The apps folder is shown only while the server lists at least one app
+        appsFolderTitle: getCorpApps().length ? getTranslationFn()('TeleTwinAppsFolderTitle') : undefined,
         linkRule: this.linkRule,
       };
     }
@@ -483,6 +490,34 @@ class CorpEngine {
     } catch (err) {
       // An old server has no groups
       if (epoch === this.epoch) this.handleFailure(err);
+    }
+  }
+
+  // Corp web apps of the "Ilovalar" folder; the folder joins global state with the next snapshot
+  async loadApps() {
+    const credentials = this.credentials;
+    // Any tab may load the list for its panel, only the master tab puts the folder into global state
+    if (!credentials || getCorpAppsStatus() === 'loading') return;
+    const epoch = this.epoch;
+    const hadApps = getCorpApps().length > 0;
+
+    setCorpAppsStatus('loading');
+    try {
+      const apps = await fetchCorpApps(credentials.server, credentials.token);
+      if (epoch !== this.epoch) return;
+      setCorpApps(Array.isArray(apps) ? apps : []);
+      setCorpAppsStatus('loaded');
+    } catch (err) {
+      // An old server has no apps: the folder stays hidden
+      if (epoch !== this.epoch) return;
+      setCorpAppsStatus('error');
+      this.handleFailure(err);
+      return;
+    }
+
+    if (hadApps !== (getCorpApps().length > 0)) {
+      this.snapshot = undefined;
+      if (this.isSessionActive && this.areChatsLoaded) this.commit();
     }
   }
 

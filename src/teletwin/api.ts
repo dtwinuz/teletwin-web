@@ -815,3 +815,24 @@ export function declineCorpCall(server: string, token: string, chatId: number) {
 export function leaveCorpCall(server: string, token: string, chatId: number) {
   return request<undefined>(server, 'POST', `chats/${chatId}/call/leave`, token);
 }
+
+// Corporate web apps of the "Ilovalar" folder: opened in an iframe with a short-lived SSO token
+export interface CorpApp {
+  id: number | string;
+  title: string;
+  url: string;
+  icon?: string;
+}
+
+export interface CorpAppToken {
+  token: string;
+  expiresAt: string;
+}
+
+export function fetchCorpApps(server: string, token: string) {
+  return request<CorpApp[]>(server, 'GET', 'apps', token);
+}
+
+export function issueCorpAppToken(server: string, token: string, appId: CorpApp['id']) {
+  return request<CorpAppToken>(server, 'POST', `apps/${encodeURIComponent(String(appId))}/token`, token);
+}

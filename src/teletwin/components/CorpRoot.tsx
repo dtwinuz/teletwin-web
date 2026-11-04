@@ -1,6 +1,7 @@
 import { memo } from '../../lib/teact/teact';
 
 import { CorpActivityModal } from './CorpActivity';
+import { CorpAppFrame } from './CorpAppFrame';
 import { CorpCall } from './CorpCall';
 import { CorpDirectoryModal } from './CorpDirectory';
 import CorpDirectPicker from './CorpDirectPicker';
@@ -12,7 +13,7 @@ import { CorpDndWakeUpConfirm, CorpStatusModal } from './CorpStatus';
 import { CorpWakeUpPicker } from './CorpWakeUp';
 
 // Corp overlays mounted once in `Main`: the mandatory login gate, the wake-up and direct chat pickers, the issue card
-// and the call
+// the call and the corp web app window
 const CorpRoot = () => {
   return (
     <>
@@ -28,6 +29,7 @@ const CorpRoot = () => {
       <CorpMyProfileModal />
       <CorpDirectoryModal />
       <CorpCall />
+      <CorpAppFrame />
     </>
   );
 };

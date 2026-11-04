@@ -4621,3 +4621,12 @@
 "TeleTwinCallRemoved" = "Siz qo'ng'iroqdan chiqarildingiz";
 "TeleTwinCallFailed" = "Qo'ng'iroqqa ulanib bo'lmadi";
 "TeleTwinCallNoMicrophone" = "Mikrofonga ruxsat yo'q";
+"TeleTwinAppsFolderTitle" = "Ilovalar";
+"TeleTwinAppsLoading" = "Ilovalar yuklanmoqda…";
+"TeleTwinAppsEmpty" = "Sizga hali birorta ilova ulanmagan";
+"TeleTwinAppsError" = "Ilovalar ro'yxatini yuklab bo'lmadi";
+"TeleTwinAppsRetry" = "Qayta urinish";
+"TeleTwinAppsReload" = "Qayta yuklash";
+"TeleTwinAppsOpenInNewTab" = "Yangi oynada ochish";
+"TeleTwinAppsClose" = "Yopish";
+"TeleTwinAppsOpenError" = "Ilovani ochib bo'lmadi. Qayta urinib ko'ring.";

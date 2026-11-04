@@ -26,13 +26,15 @@ import { selectThread, selectThreadInfo, selectThreadReadState } from '../global
 import { omit } from '../util/iteratees';
 import { CORP_CHAT_KIND_CHANNEL, CORP_CHAT_KIND_DIRECT } from './api';
 import {
-  buildCorpChatId, buildCorpGroupMentionId, buildCorpMediaId, buildCorpPollId, buildCorpUserId, CORP_FOLDER_ID,
+  APPS_FOLDER_ID, buildCorpChatId, buildCorpGroupMentionId, buildCorpMediaId, buildCorpPollId, buildCorpUserId,
+  CORP_FOLDER_ID,
   CORP_MENTION_ALL_ID, CORP_MENTION_HERE_ID, getCorpGroupMentions, getEmployeeId, isCorpChatId, isCorpMentionKeywordId,
   isCorpPeerId, isCorpUserId,
 } from './ids';
 
 const MS_IN_SECOND = 1000;
 const FOLDER_EMOTICON = '💼';
+const APPS_FOLDER_EMOTICON = '🧩';
 const GROUP_MENTION_EMOTICON = '👥';
 const ENTITY_TYPE_PREFIX = 'MessageEntity';
 const LOTTIE_MIME = 'application/x-tgsticker';
@@ -77,6 +79,8 @@ export interface CorpSnapshot {
   messagesByChat: Record<number, CorpMessage[]>;
   readMarks: Record<number, number>;
   folderTitle: string;
+  // Set only while the corp server lists at least one web app
+  appsFolderTitle?: string;
   linkRule?: CorpLinkRule;
 }
 
@@ -533,9 +537,19 @@ export function buildCorpFolder(chats: CorpChatInfo[], title: string): ApiChatFo
   };
 }
 
+export function buildAppsFolder(title: string): ApiChatFolder {
+  return {
+    id: APPS_FOLDER_ID,
+    title: { text: title },
+    emoticon: APPS_FOLDER_EMOTICON,
+    includedChatIds: [],
+    excludedChatIds: [],
+  };
+}
+
 export function applyCorpSnapshot<T extends GlobalState>(global: T, snapshot: CorpSnapshot): T {
   const {
-    telegramUserId, employee, chats, messagesByChat, readMarks, folderTitle, linkRule,
+    telegramUserId, employee, chats, messagesByChat, readMarks, folderTitle, appsFolderTitle, linkRule,
   } = snapshot;
 
   const usersById: Record<string, ApiUser> = {};
@@ -576,6 +590,7 @@ export function applyCorpSnapshot<T extends GlobalState>(global: T, snapshot: Co
   }
 
   global = applyCorpFolder(global, chats, folderTitle);
+  global = applyAppsFolder(global, appsFolderTitle);
 
   // The Telegram chat list load replaces all notify exceptions: the corp mute state is put back
   const notifyExceptions = chats.reduce((result: Record<string, ApiPeerNotifySettings>, chat) => {
@@ -612,6 +627,47 @@ function applyCorpFolder<T extends GlobalState>(global: T, chats: CorpChatInfo[]
       byId: isFolderCurrent ? byId : { ...byId, [CORP_FOLDER_ID]: folder },
       // Appended last, so the index-based active folder tab of the user does not shift
       orderedIds: hasOrder ? orderedIds : [...(orderedIds || [ALL_FOLDER_ID]), CORP_FOLDER_ID],
+    },
+  };
+}
+
+// The apps folder has no chats: its tab renders the app list. It goes right after the corp folder.
+export function applyAppsFolder<T extends GlobalState>(global: T, title?: string): T {
+  const { byId, orderedIds } = global.chatFolders;
+  const current = byId[APPS_FOLDER_ID];
+  const hasOrder = Boolean(orderedIds?.includes(APPS_FOLDER_ID));
+
+  if (!title) {
+    if (!current && !hasOrder) return global;
+
+    return {
+      ...global,
+      chatFolders: {
+        ...global.chatFolders,
+        byId: omit(byId, [APPS_FOLDER_ID]),
+        orderedIds: orderedIds?.filter((id) => id !== APPS_FOLDER_ID),
+      },
+    };
+  }
+
+  const isFolderCurrent = current?.title.text === title && current.emoticon === APPS_FOLDER_EMOTICON;
+  if (isFolderCurrent && hasOrder) return global;
+
+  let newOrderedIds = orderedIds;
+  if (!hasOrder) {
+    const base = orderedIds || [ALL_FOLDER_ID];
+    const corpIndex = base.indexOf(CORP_FOLDER_ID);
+    newOrderedIds = corpIndex === -1
+      ? [...base, APPS_FOLDER_ID]
+      : [...base.slice(0, corpIndex + 1), APPS_FOLDER_ID, ...base.slice(corpIndex + 1)];
+  }
+
+  return {
+    ...global,
+    chatFolders: {
+      ...global.chatFolders,
+      byId: isFolderCurrent ? byId : { ...byId, [APPS_FOLDER_ID]: buildAppsFolder(title) },
+      orderedIds: newOrderedIds,
     },
   };
 }
@@ -686,6 +742,8 @@ function applyCorpHistory<T extends GlobalState>(
 export function isCorpSnapshotApplied(global: GlobalState, snapshot: CorpSnapshot) {
   const { byId: foldersById, orderedIds } = global.chatFolders;
   if (!foldersById[CORP_FOLDER_ID] || !orderedIds?.includes(CORP_FOLDER_ID)) return false;
+  const hasAppsFolder = Boolean(foldersById[APPS_FOLDER_ID]) && orderedIds.includes(APPS_FOLDER_ID);
+  if (hasAppsFolder !== Boolean(snapshot.appsFolderTitle)) return false;
 
   const activeIds = global.chats.listIds.active;
 
@@ -706,7 +764,9 @@ export function isCorpSnapshotApplied(global: GlobalState, snapshot: CorpSnapsho
 }
 
 export function hasCorpData(global: GlobalState) {
-  return Boolean(global.chatFolders.byId[CORP_FOLDER_ID]) || Object.keys(global.chats.byId).some(isCorpChatId);
+  const { byId } = global.chatFolders;
+
+  return Boolean(byId[CORP_FOLDER_ID] || byId[APPS_FOLDER_ID]) || Object.keys(global.chats.byId).some(isCorpChatId);
 }
 
 // Removes corp chats, senders, messages and the folder. Pure: also used to strip the persisted cache.
@@ -776,6 +836,8 @@ export function removeCorpData<T extends GlobalState>(global: T, onlyChatIds?: s
       },
     };
   }
+
+  if (!onlyChatIds) global = applyAppsFolder(global, undefined);
 
   return global;
 }

@@ -114,6 +114,15 @@ const RU: Record<string, string> = {
   TeleTwinCallRemoved: 'Вас отключили от звонка',
   TeleTwinCallFailed: 'Не удалось подключиться к звонку',
   TeleTwinCallNoMicrophone: 'Нет доступа к микрофону',
+  TeleTwinAppsFolderTitle: 'Приложения',
+  TeleTwinAppsLoading: 'Загрузка приложений…',
+  TeleTwinAppsEmpty: 'Вам пока не подключено ни одного приложения',
+  TeleTwinAppsError: 'Не удалось загрузить список приложений',
+  TeleTwinAppsRetry: 'Повторить',
+  TeleTwinAppsReload: 'Перезагрузить',
+  TeleTwinAppsOpenInNewTab: 'Открыть в новой вкладке',
+  TeleTwinAppsClose: 'Закрыть',
+  TeleTwinAppsOpenError: 'Не удалось открыть приложение. Попробуйте ещё раз.',
 };
 
 const EN: Record<string, string> = {
@@ -228,6 +237,15 @@ const EN: Record<string, string> = {
   TeleTwinCallRemoved: 'You were removed from the call',
   TeleTwinCallFailed: 'Could not connect to the call',
   TeleTwinCallNoMicrophone: 'No access to the microphone',
+  TeleTwinAppsFolderTitle: 'Apps',
+  TeleTwinAppsLoading: 'Loading apps…',
+  TeleTwinAppsEmpty: 'No apps are connected for you yet',
+  TeleTwinAppsError: 'Could not load the app list',
+  TeleTwinAppsRetry: 'Retry',
+  TeleTwinAppsReload: 'Reload',
+  TeleTwinAppsOpenInNewTab: 'Open in new tab',
+  TeleTwinAppsClose: 'Close',
+  TeleTwinAppsOpenError: 'Could not open the app. Please try again.',
 };
 
 const KEY_PREFIX = 'TeleTwin';

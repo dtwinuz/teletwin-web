@@ -3475,6 +3475,15 @@ export interface LangPair {
   'TeleTwinCallRemoved': undefined;
   'TeleTwinCallFailed': undefined;
   'TeleTwinCallNoMicrophone': undefined;
+  'TeleTwinAppsFolderTitle': undefined;
+  'TeleTwinAppsLoading': undefined;
+  'TeleTwinAppsEmpty': undefined;
+  'TeleTwinAppsError': undefined;
+  'TeleTwinAppsRetry': undefined;
+  'TeleTwinAppsReload': undefined;
+  'TeleTwinAppsOpenInNewTab': undefined;
+  'TeleTwinAppsClose': undefined;
+  'TeleTwinAppsOpenError': undefined;
 }
 
 export interface LangPairWithVariables<V = LangVariable> {
