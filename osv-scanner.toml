@@ -1,0 +1,23 @@
+# Known advisories in the web client's npm dev tooling that have no fix we can take today.
+# Read by osv-scanner and OpenSSF Scorecard (only from this folder, next to package-lock.json).
+# Every entry has a reason and an end date: on that date re-check, bump or extend with a new reason.
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+ignoreUntil = 2027-02-13
+reason = "minimatch 10.2.6 is used only by eslint and its plugins on our own lint globs. The fix is minimatch 11, which drops makeRe that eslint-plugin-import-x 4.17 imports. glob already gets minimatch 11 via overrides."
+
+[[IgnoredVulns]]
+id = "GHSA-528h-pc64-c93x"
+ignoreUntil = 2027-02-13
+reason = "stream-json 1.9.1 is used only by @bundle-stats/cli-utils (dev bundle report) on our own webpack stats file. The fix is stream-json 3.x, a breaking API change the tool does not support yet."
+
+[[IgnoredVulns]]
+id = "GHSA-hqr4-qq8f-hg3x"
+ignoreUntil = 2027-02-13
+reason = "Same stream-json 1.9.1 dev-only use as GHSA-528h-pc64-c93x; JSONC parser not used."
+
+[[IgnoredVulns]]
+id = "GHSA-mjw6-4jj6-33hc"
+ignoreUntil = 2027-02-13
+reason = "Same stream-json 1.9.1 dev-only use as GHSA-528h-pc64-c93x; input is our own build stats, never user data."

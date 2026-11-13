@@ -15,5 +15,8 @@
   },
   "devDependencies": {
     "@capacitor/cli": "8.6.0"
+  },
+  "overrides": {
+    "glob": "^14.0.2"
   }
 }

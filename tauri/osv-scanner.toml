@@ -1,0 +1,46 @@
+# Known advisories in the desktop app's Rust dependencies that have no fix we can take today.
+# Read by osv-scanner and OpenSSF Scorecard (only from this folder, next to Cargo.lock).
+# Every entry has a reason and an end date: on that date re-check, bump or extend with a new reason.
+
+# gtk3-rs 0.18 (gtk, glib) is the Linux toolkit of tauri 2 (tray-icon, wry). glib >= 0.20 needs gtk4,
+# which tauri 2 does not support. The unsound code is glib::VariantStrIter, which our code never calls.
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0429"
+ignoreUntil = 2027-05-13
+reason = "glib 0.18 via gtk 0.18 (tauri 2 Linux backend); fix needs gtk4, unsupported by tauri 2; VariantStrIter not used"
+
+[[IgnoredVulns]]
+id = "GHSA-wrw7-89jp-8q8g"
+ignoreUntil = 2027-05-13
+reason = "Same advisory as RUSTSEC-2024-0429 (glib 0.18 via tauri 2 gtk backend)"
+
+# "Unmaintained" notices, no vulnerability. They are build-time proc macros or transitive crates of tauri.
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0370"
+ignoreUntil = 2027-05-13
+reason = "proc-macro-error is unmaintained (no vulnerability); compile-time only, pulled by gtk 0.18 macros in tauri 2"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0436"
+ignoreUntil = 2027-05-13
+reason = "paste is unmaintained (no vulnerability); compile-time macro pulled by image/imageproc"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0192"
+ignoreUntil = 2027-05-13
+reason = "ttf-parser is unmaintained (no vulnerability); used by imageproc to draw text on our own bundled font only"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0370"
+ignoreUntil = 2027-05-13
+reason = "zvariant is unmaintained (no vulnerability); D-Bus types of zbus 5, pulled by notify-rust (tauri-plugin-notification, Linux)"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0371"
+ignoreUntil = 2027-05-13
+reason = "zbus_names is unmaintained (no vulnerability); part of zbus 5 via tauri-plugin-notification (Linux)"
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0372"
+ignoreUntil = 2027-05-13
+reason = "zvariant_derive is unmaintained (no vulnerability); compile-time macro of zbus 5 via tauri-plugin-notification"
