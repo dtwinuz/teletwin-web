@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, rmSync } from 'fs';
 import { dirname, resolve } from 'path';
 import type { NormalizedOutputOptions, OutputBundle, PluginContext } from 'rolldown';
 import { bundleStats } from 'rollup-plugin-bundle-stats';
@@ -67,6 +67,8 @@ type BundleReportHook = (
 
 export default defineConfig(({ mode }): UserConfig => {
   const env = loadEnv(mode, process.cwd(), '');
+  // TeleTwin live demo (`npm run build:demo`): no Telegram or corp server, local fixtures answer every call
+  const isDemo = mode === 'demo';
   setViteEnv(env);
   const {
     HEAD = '',
@@ -97,7 +99,8 @@ export default defineConfig(({ mode }): UserConfig => {
       rootDir: DIR_NAME,
     }),
     viteStaticCopy({ targets: WATCHED_STATIC_COPY_TARGETS }),
-    viteStaticCopy({
+    // The demo renders native emoji, so it skips the ~100 MB of emoji images
+    !isDemo && viteStaticCopy({
       targets: UNWATCHED_STATIC_COPY_TARGETS,
       watch: {
         options: {
@@ -166,7 +169,9 @@ export default defineConfig(({ mode }): UserConfig => {
 
   const shouldCollectWorkerReportBundles = bundleStatsVisualizerValue === '1' || bundleStatsValue === '1';
 
-  if (appEnv !== 'test' && (!telegramApiId || !telegramApiHash)) {
+  if (isDemo) plugins.push(buildDemoPlugin());
+
+  if (appEnv !== 'test' && !isDemo && (!telegramApiId || !telegramApiHash)) {
     throw new Error('Missing required Telegram API credentials');
   }
 
@@ -193,9 +198,13 @@ export default defineConfig(({ mode }): UserConfig => {
     },
     define: {
       APP_VERSION: JSON.stringify(APP_VERSION),
+      TELETWIN_DEMO: JSON.stringify(isDemo),
     },
     resolve: {
       tsconfigPaths: true,
+      alias: isDemo ? {
+        '@microsoft/signalr': resolve(DIR_NAME, 'src/demo/signalr.ts'),
+      } : undefined,
     },
     css: {
       modules: {
@@ -220,7 +229,7 @@ export default defineConfig(({ mode }): UserConfig => {
       },
     },
     build: {
-      sourcemap: true,
+      sourcemap: !isDemo,
       assetsInlineLimit: (filePath) => (IMAGE_ASSET_RE.test(filePath) ? false : undefined),
     },
     worker: {
@@ -236,6 +245,41 @@ export default defineConfig(({ mode }): UserConfig => {
     plugins,
   };
 });
+
+// Demo entry: `src/demo/main.ts` seeds the fake session and fixtures, then loads the real `src/index.tsx`
+// and `demo-app.html` stands in for the corporate web apps of the "Ilovalar" folder.
+// Bundle reports and the site-verification page from `public/` stay out of the demo (~96 MB).
+const DEMO_SKIPPED_PUBLIC_FILES = ['build-stats.json', 'statoscope-report.html', 'google7077b308900504fb.html'];
+
+function buildDemoPlugin(): Plugin {
+  const appPagePath = resolve(DIR_NAME, 'src/demo/app.html');
+  let outDir = '';
+
+  return {
+    name: 'teletwin:demo',
+    configResolved(config) {
+      if (config.command === 'build') outDir = resolve(config.root, config.build.outDir);
+    },
+    closeBundle() {
+      if (!outDir) return;
+      DEMO_SKIPPED_PUBLIC_FILES.forEach((file) => rmSync(resolve(outDir, file), { force: true }));
+    },
+    // `pre`, so the build picks the replaced entry when it collects the page scripts
+    transformIndexHtml: {
+      order: 'pre',
+      handler: (html) => html.replace('./src/index.tsx', './src/demo/main.ts'),
+    },
+    configureServer(server) {
+      server.middlewares.use('/demo-app.html', (_req, res) => {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.end(readFileSync(appPagePath));
+      });
+    },
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'demo-app.html', source: readFileSync(appPagePath) });
+    },
+  };
+}
 
 function createBundleReportPlugin(plugin: BundleReportPlugin, workerReportBundles: OutputBundle[]): Plugin {
   return {

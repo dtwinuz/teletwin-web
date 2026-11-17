@@ -4,6 +4,8 @@ declare module '*.css';
 declare module '*.scss';
 
 declare const APP_VERSION: string;
+// TeleTwin: `true` only in the live demo build (`vite build --mode demo`)
+declare const TELETWIN_DEMO: boolean;
 
 declare module 'virtual:git-info' {
   export const APP_REVISION: string;

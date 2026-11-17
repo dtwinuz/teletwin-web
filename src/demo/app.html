@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orzu Logistika · ichki ilova (demo)</title>
+  <style>
+    :root { color-scheme: light; --accent: #3557e0; --muted: #6b7280; --line: #e5e7eb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #111827; background: #f6f7fb; }
+    header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 1px solid var(--line); }
+    header .icon { font-size: 24px; }
+    header h1 { font-size: 17px; margin: 0; }
+    header .sso { margin-left: auto; font-size: 12px; color: #047857; background: #ecfdf5; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+    main { padding: 18px 20px; display: grid; gap: 14px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+    .card b { display: block; font-size: 20px; }
+    .card span { color: var(--muted); font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+    th { background: #f9fafb; color: var(--muted); font-weight: 600; font-size: 12px; }
+    tr:last-child td { border-bottom: 0; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .ok { background: #ecfdf5; color: #047857; } .wait { background: #fff7ed; color: #c2410c; } .bad { background: #fef2f2; color: #b91c1c; }
+    .bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; } .bar i { display: block; height: 100%; background: var(--accent); }
+    footer { color: var(--muted); font-size: 12px; padding: 0 20px 18px; }
+  </style>
+</head>
+<body>
+  <header><span class="icon" id="icon"></span><h1 id="title"></h1><span class="sso" id="sso"></span></header>
+  <main id="main"></main>
+  <footer>Demo ilova: TeleTwin uni iframe'da ochadi va bir martalik SSO token beradi. Ma'lumotlar namuna.</footer>
+  <script>
+    const APPS = {
+      lunch: ['🍲', 'Tushlik', [['Bugungi buyurtmalar', '29'], ['Osh', '14'], ['Mastava', '6'], ['Salat', '9']],
+        ['Taom', 'Narx', 'Holat'], [['Osh', "32 000 so'm", 'ok:Bor'], ['Mastava', "24 000 so'm", 'ok:Bor'], ['Salat «Bahor»', "18 000 so'm", 'wait:Oz qoldi'], ['Shashlik', "28 000 so'm", 'bad:Ertaga']]],
+      leave: ['🌴', "Ta'til arizasi", [["Qolgan kunlar", '14'], ['Tasdiqlangan', '10'], ['Kutilmoqda', '1']],
+        ['Davr', 'Kun', 'Holat'], [['20.12 — 29.12', '10', 'ok:Tasdiqlandi'], ['14.03 — 18.03', '5', 'wait:Ko‘rib chiqilmoqda'], ['02.08 — 15.08', '14', 'ok:Yakunlangan']]],
+      stock: ['📦', "Ombor qoldig'i", [['Pozitsiya', '1 248'], ['Palet', '386'], ['Band rampa', '2 / 4']],
+        ['Mahsulot', 'Qoldiq', 'Holat'], [['Qog‘oz A4 (quti)', '420', 'ok:Yetarli'], ['Suv 1,5 l (palet)', '36', 'wait:Kam'], ['Paxta yog‘i 5 l', '118', 'ok:Yetarli'], ['Un 50 kg', '0', 'bad:Tugagan']]],
+      invoices: ['🧾', 'Hisob-fakturalar', [['Noyabr', '37'], ['Imzolangan', '35'], ['Rad etilgan', '2']],
+        ['Kontragent', 'Summa', 'Holat'], [['«Baraka Market» MChJ', "37 200 000 so'm", 'ok:Imzolandi'], ['«Yashil Vodiy» MChJ', "48 500 000 so'm", 'wait:Kutilmoqda'], ['«Orient Savdo» MChJ', "12 960 000 so'm", 'bad:Rad etildi']]],
+      fleet: ['🚚', 'Avtopark (GPS)', [['Mashina', '24'], ["Yo'lda", '9'], ['Ta’mirda', '1']],
+        ['Raqam', "Yo'nalish", 'Holat'], [['01 A 345 BC', 'Toshkent — Samarqand', "ok:Yo'lda"], ['01 B 712 CA', 'Toshkent — Andijon', "ok:Yo'lda"], ['01 C 090 AA', 'Sergeli ombori', 'wait:Yuklanmoqda'], ['01 D 451 BB', '—', "bad:Ta'mirda"]]],
+      kpi: ['📈', 'KPI panel', [['Yuk aylanmasi', '+18%'], ['Kechikish', '1,6%'], ['Reja', '82%']],
+        ["Bo'lim", 'Bajarilish', ''], [['Savdo', '82%', 'bar:82'], ['Logistika', '91%', 'bar:91'], ['Buxgalteriya', '97%', 'bar:97'], ['Marketing', '74%', 'bar:74']]],
+    };
+    const id = new URLSearchParams(location.search).get('app') || 'lunch';
+    const [icon, title, cards, head, rows] = APPS[id] || APPS.lunch;
+    const token = decodeURIComponent((location.hash.match(/tt=([^&]+)/) || [])[1] || '');
+    document.getElementById('icon').textContent = icon;
+    document.getElementById('title').textContent = title;
+    document.getElementById('sso').textContent = token ? '✓ SSO: Toshmatov Jasur' : 'SSO token yo‘q';
+    const main = document.getElementById('main');
+    const cardsEl = document.createElement('div');
+    cardsEl.className = 'cards';
+    cards.forEach(([label, value]) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = '<span></span><b></b>';
+      card.querySelector('span').textContent = label;
+      card.querySelector('b').textContent = value;
+      cardsEl.append(card);
+    });
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr></tr></thead><tbody></tbody>';
+    head.forEach((h) => { const th = document.createElement('th'); th.textContent = h; table.querySelector('tr').append(th); });
+    rows.forEach((row) => {
+      const tr = document.createElement('tr');
+      row.forEach((cell, index) => {
+        const td = document.createElement('td');
+        if (index === 2 && cell) {
+          const [kind, text] = cell.split(':');
+          if (kind === 'bar') {
+            td.innerHTML = '<div class="bar"><i></i></div>';
+            td.querySelector('i').style.width = text + '%';
+          } else {
+            td.innerHTML = '<span class="pill"></span>';
+            td.firstChild.className = 'pill ' + kind;
+            td.firstChild.textContent = text;
+          }
+        } else {
+          td.textContent = cell;
+        }
+        tr.append(td);
+      });
+      table.querySelector('tbody').append(tr);
+    });
+    main.append(cardsEl, table);
+  </script>
+</body>
+</html>
