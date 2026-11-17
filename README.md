@@ -14,7 +14,15 @@
   <img alt="SignalR" src="https://img.shields.io/badge/realtime-SignalR-512BD4">
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-blue"></a>
   <img alt="Status" src="https://img.shields.io/badge/holat-beta%20(ichki%20sinov)-orange">
-  <a href="https://github.com/orgs/dtwinuz/projects/9"><img alt="Project" src="https://img.shields.io/badge/Project-%239-6f42c1?logo=github"></a>
+  <a href="https://wonmor.io/demo/teletwin-web/"><img alt="Live demo" src="https://img.shields.io/badge/jonli%20demo-wonmor.io-38c98a"></a>
+</p>
+
+<p align="center">
+  <b><a href="https://tele.dtwin.uz/">Sayt</a> · <a href="https://wonmor.io/demo/teletwin-web/">Jonli demo</a> · <a href="#-hujjatlar">Hujjatlar</a> · <a href="https://github.com/dtwinuz/teletwin-web/releases">Relizlar</a></b>
+</p>
+
+<p align="center">
+  <a href="https://wonmor.io/demo/teletwin-web/"><img src="docs/screenshots/overview.jpg" alt="TeleTwin Web: Telegram chatlari va Korxona chatlari bitta ro'yxatda" width="900"></a>
 </p>
 
 > [!NOTE]
@@ -22,9 +30,53 @@
 > Bu **rasmiy Telegram ilovasi emas** va Telegram bilan bog'liq emas. Asl loyiha README'si va bog'liqliklar litsenziyalari:
 > [`docs/UPSTREAM-README.md`](docs/UPSTREAM-README.md).
 
----
+## ✨ Nima qiladi
 
-## 🧭 Bu nima?
+- **Bitta ro'yxat, ikki dunyo:** Telegram akkaunti odatdagidek ishlaydi, yonida **"Korxona"** papkasi — uning chatlari,
+  kanallari va xabarlari Telegram'ga umuman yetib bormaydi, faqat korxonaning TeleTwin serverida yashaydi.
+- **Bir tugma bilan revoke:** admin xodimni o'chirsa, korxona chatlari, media va kesh darhol yo'qoladi, shaxsiy Telegram qoladi.
+- **To'liq ish chati:** reply, tahrir, o'chirish, reaksiya, pin, ✓✓ o'qildi, typing, so'rovnoma, thread, rejalashtirilgan xabar,
+  rasm, hujjat, ovozli xabar, `@all` / `@here` mention va ovozli "uyg'otish".
+- **Ish joyi asboblari:** Jira kartochkasi (havola ustida), "Holatim" va DND, "Profilim", saqlanganlar + eslatma,
+  "Faollik" lentasi, kanallar katalogi, xodimga yozish va global qidiruvda korxona xabarlari.
+- **"Ilovalar" papkasi:** korxonaning ichki web ilovalari (tushlik, ta'til, ombor, avtopark...) bir martalik SSO token bilan ichkarida ochiladi.
+- **Hamma joyda:** brauzer va PWA, Tauri desktop (Windows, macOS, Linux) va Android qobig'i — bitta web build.
+
+| | |
+|---|---|
+| <img src="docs/screenshots/corp-folder.jpg" alt="Korxona papkasi"><br>**Korxona papkasi** — e'lonlar kanali, so'rovnoma, pin | <img src="docs/screenshots/thread.jpg" alt="Thread"><br>**Thread** — xabar ostidagi muhokama |
+| <img src="docs/screenshots/jira-card.jpg" alt="Jira kartochkasi"><br>**Jira kartochkasi** — `CHIR-142` ustida holat va mas'ul | <img src="docs/screenshots/apps.jpg" alt="Ilovalar"><br>**Ilovalar** — ichki web ilova SSO bilan |
+| <img src="docs/screenshots/status.jpg" alt="Holatim"><br>**Holatim** — emoji, muddat va DND | <img src="docs/screenshots/activity.jpg" alt="Faollik"><br>**Faollik** — mention, reaksiya, thread javoblari |
+| <img src="docs/screenshots/saved.jpg" alt="Saqlanganlar"><br>**Saqlanganlar** — eslatmali xabarlar | <img src="docs/screenshots/directory.jpg" alt="Kanallar katalogi"><br>**Kanallar katalogi** — ochiq guruh va kanallar |
+| <img src="docs/screenshots/direct-picker.jpg" alt="Xodimga yozish"><br>**Xodimga yozish** — korxona xodimlari ro'yxati | <img src="docs/screenshots/search.jpg" alt="Qidiruv"><br>**Qidiruv** — korxona xabarlari global qidiruvda |
+| <img src="docs/screenshots/personal-chat.jpg" alt="Shaxsiy chat"><br>**Shaxsiy Telegram** — oila va do'stlar o'z joyida | <img src="docs/screenshots/phone.jpg" alt="Telefon" width="220"><br>**Telefon** — 390 px kenglikda |
+
+## 🚀 Tez boshlash
+
+**Jonli demo** — hech narsa o'rnatmasdan: <https://wonmor.io/demo/teletwin-web/>. Telegram va server kerak emas, kirish avtomatik;
+"Orzu Logistika" namuna korxonasi (36 xodim, 22 chat), hamma o'zgarish xotirada va sahifa qayta yuklanganda tiklanadi.
+
+Demoni lokal ishga tushirish:
+
+```sh
+npm i
+npm run dev:demo              # http://localhost:1234 (Telegram api_id kerak emas)
+npm run build:demo            # statik fayllar dist-demo/ ga, istalgan papkadan ochiladi
+```
+
+Haqiqiy ilova — Node 26 (`.node-version`), npm va o'zingizning Telegram `api_id` / `api_hash` ([my.telegram.org](https://my.telegram.org)):
+
+```sh
+cp .env.example .env          # TELEGRAM_API_ID, TELEGRAM_API_HASH ni to'ldiring
+npm i
+npm run dev                   # http://localhost:1234
+```
+
+> [!TIP]
+> Korxona qismini sinash uchun TeleTwin server kerak — uni ishga tushirish [dtwinuz/teletwin](https://github.com/dtwinuz/teletwin) da.
+> Login oynasidagi **"Server"** maydoniga server manzilini kiritasiz.
+
+## 🧭 Foydalanish
 
 TeleTwin — xodim uchun bitta messenjer: Telegram akkaunti odatdagidek ishlaydi (oila, do'stlar, kanallar),
 yonida esa **"Korxona"** papkasi paydo bo'ladi — u chatlar, kanallar va xabarlar Telegram'ga umuman yetib bormaydi,
@@ -36,15 +88,7 @@ Server (backend), admin panel va umumiy hujjatlar — asosiy repo'da:
 Klassik C++ desktop klient (Telegram Desktop fork) — alohida [dtwinuz/teletwin-desktop](https://github.com/dtwinuz/teletwin-desktop)
 repo'si (yopiq), asosiy repo'ga `client/tdesktop` submodule sifatida ulangan.
 
-## 🏠 Home va Overview
-
-| Sahifa | Havola |
-|---|---|
-| 🏠 **Home** — mahsulot sahifasi va yuklab olish | <https://tele.dtwin.uz/> |
-| 🎬 **Overview** — bir daqiqalik jonli tanishuv | [uz](https://tele.dtwin.uz/overview/) · [ru](https://tele.dtwin.uz/overview/ru/) · [en](https://tele.dtwin.uz/overview/en/) |
-| 💬 **Ilova** — Telegram + korxona (Web) · PWA | <https://tele.dtwin.uz/web/> · <https://tele.dtwin.uz/app/> |
-
-## ✨ Imkoniyatlar
+### Imkoniyatlar holati
 
 Belgilar: ✅ kod bor va ishlatilmoqda · 🟡 kod bor, to'liq sinalmagan · 🔜 rejada
 
@@ -70,7 +114,17 @@ Belgilar: ✅ kod bor va ishlatilmoqda · 🟡 kod bor, to'liq sinalmagan · �
 
 ¹ E2E: [`dtwinuz/teletwin` `tests/e2e`](https://github.com/dtwinuz/teletwin/tree/main/tests/e2e) — ikki test akkaunt, faqat test chat, prodda (`npm run e2e:prod`); server kontrakti va real vaqt hodisalarini isbotlaydi, Web A UI'ning chizilishini emas.
 
-## 🏗 Arxitektura
+## 📚 Hujjatlar
+
+### Home va Overview
+
+| Sahifa | Havola |
+|---|---|
+| 🏠 **Home** — mahsulot sahifasi va yuklab olish | <https://tele.dtwin.uz/> |
+| 🎬 **Overview** — bir daqiqalik jonli tanishuv | [uz](https://tele.dtwin.uz/overview/) · [ru](https://tele.dtwin.uz/overview/ru/) · [en](https://tele.dtwin.uz/overview/en/) |
+| 💬 **Ilova** — Telegram + korxona (Web) · PWA | <https://tele.dtwin.uz/web/> · <https://tele.dtwin.uz/app/> |
+
+### Arxitektura
 
 Asosiy g'oya: Web A'dagi **har bir** Telegram API chaqiruvi `callApi` orqali o'tadi. TeleTwin shu nuqtaga router qo'yadi:
 argumentlarida korxona ID'si bor chaqiruv GramJS worker'ga (ya'ni Telegram'ga) **hech qachon** yetmaydi —
@@ -111,7 +165,7 @@ flowchart LR
   S --> UI
 ```
 
-### Kirish va revoke oqimi
+#### Kirish va revoke oqimi
 
 ```mermaid
 sequenceDiagram
@@ -144,7 +198,7 @@ sequenceDiagram
   Note over W,TG: Telegram sessiyasi tegilmaydi
 ```
 
-### Upstream'ga qanday tegilgan
+#### Upstream'ga qanday tegilgan
 
 Bizning o'zgarishlar ikki qatlam: yangi kod `src/teletwin/` da (~6 500 qator), Web A ichida esa faqat
 nuqtaviy "ilgaklar" (har birida `TeleTwin:` izohi). Asosiylari:
@@ -159,63 +213,35 @@ nuqtaviy "ilgaklar" (har birida `TeleTwin:` izohi). Asosiylari:
 | `src/config.ts`, `index.html`, `public/`, `tauri/icons/` | TeleTwin nomi va ikonkalar |
 | `vite.config.ts` | CSP `connect-src` ga TeleTwin server qo'shilgan |
 
-## 🧱 Stek
+### Jonli demo qanday ishlaydi
 
-| Qatlam | Texnologiya |
+`npm run build:demo` (`vite build --mode demo`) xuddi shu UI'ni quradi, faqat ma'lumot qatlami almashadi:
+
+| Qism | Demo'da |
 |---|---|
-| UI | Telegram Web A: TypeScript, [Teact](https://github.com/Ajaxy/teact), SCSS, Vite |
-| Telegram protokoli | GramJS (MTProto, Web Worker) — upstream |
-| Korxona realtime | `@microsoft/signalr` (WebSockets, `skipNegotiation`) |
-| Korxona API | `fetch` REST klient (`src/teletwin/api.ts`) |
-| Desktop | Tauri 2 (Rust) — `tauri/tauri.teletwin.conf.json` |
-| Android | Capacitor 8, Java (`TeleTwinBridge`: bildirishnoma, yuklab olish) |
-| CI | GitHub Actions: `teletwin-web-ci.yml` (PR: tsc + eslint + vitest), `teletwin-desktop.yml`, `teletwin-android.yml` |
-| Node | `.node-version` = 26 |
+| `src/demo/main.ts` | kirish nuqtasi: namuna sessiyasi, korxona serveri, demo belgisi, keyin haqiqiy `src/index.tsx` |
+| `src/demo/telegram.ts` | `callApi` GramJS o'rniga xotiradagi Telegram'ga boradi (shaxsiy chatlar, reaksiyalar, auto-javob) |
+| `src/demo/corpServer.ts`, `data.ts` | `src/teletwin/api.ts` dagi har bir REST yo'li uchun xotiradagi server: xabar, thread, poll, pin, upload, qidiruv, saqlanganlar, Faollik |
+| `src/demo/signalr.ts` | `@microsoft/signalr` o'rniga hub: typing, o'qildi, yangi xabarlar o'z-o'zidan keladi |
+| `src/demo/app.html` | "Ilovalar" papkasidagi namuna ichki ilova (`demo-app.html`) |
 
-## 📁 Tuzilma
+Demo kodi faqat `TELETWIN_DEMO` (build vaqtidagi konstanta) `true` bo'lganda dinamik import qilinadi: oddiy
+`npm run build:production` natijasi bir xil hajmda qoladi va unda demo kodi yo'q.
 
-```text
-teletwin-web/
-├── src/
-│   ├── teletwin/              # ⭐ TeleTwin korxona qatlami (hammasi shu yerda)
-│   │   ├── guard.ts           #   Telegram API router: korxona ID -> provider yoki blok
-│   │   ├── provider.ts        #   Web A metodlarining korxona varianti (fetchMessages, sendMessage, ...)
-│   │   ├── engine.ts          #   sessiya, sinxronlash, SignalR hub hodisalari
-│   │   ├── api.ts             #   TeleTwin server REST klienti
-│   │   ├── ids.ts             #   korxona ID diapazoni, "Korxona" papka ID
-│   │   ├── state.ts           #   korxona chat/xabarlarini Web A state'iga aylantirish
-│   │   ├── media.ts           #   korxona media (keshsiz, blob URL)
-│   │   ├── storage.ts         #   localStorage: Telegram akkaunti bo'yicha korxona hisobi
-│   │   ├── wakeup.ts  saved.ts  activity.ts  status.ts  profile.ts
-│   │   └── components/        #   CorpGate, CorpJiraCard, CorpStatus, CorpSaved, CorpDirectory, ...
-│   ├── api/gramjs/worker/connector.ts   # router ilgagi
-│   └── ...                    # qolgani — upstream Web A
-├── tauri/                     # desktop qobiq (upstream + tauri.teletwin.conf.json)
-├── mobile/                    # Android Capacitor qobiq (uz.dtwin.teletwin)
-│   ├── capacitor.config.json  #   ochiladigan web manzil
-│   ├── android/               #   Gradle loyiha, TeleTwinBridge.java, teletwin_bridge.js
-│   └── ios/                   #   Xcode loyiha (scaffold, SPM; build faqat macOS'da)
-├── .github/workflows/         # teletwin-desktop.yml, teletwin-android.yml (workflow fayllari gitignore'da: git add -f)
-├── docs/UPSTREAM-README.md    # asl Telegram Web A README'si
-└── LICENSE                    # GPL-3.0
-```
-
-## 🚀 Tez boshlash
-
-Kerak: Node 26 (`.node-version`), npm. Telegram `api_id` / `api_hash` — o'zingizniki, [my.telegram.org](https://my.telegram.org) dan.
+## 🛠 Ishlab chiqish
 
 ```sh
-cp .env.example .env          # TELEGRAM_API_ID, TELEGRAM_API_HASH ni to'ldiring
-npm i
-npm run dev                   # http://localhost:1234
-```
-
-Production build (statik fayllar `dist/` ga):
-
-```sh
-BASE_URL=https://example.com/web/ npm run build:production
 npm run check                 # tsc + eslint + stylelint
 npm test                      # vitest (upstream + src/teletwin testlari)
+BASE_URL=https://example.com/web/ npm run build:production   # statik fayllar dist/ ga
+```
+
+Demo tekshiruvlari (Playwright, `demo/` papkasida alohida `package.json`):
+
+```sh
+npm --prefix demo i && npx --prefix demo playwright install chromium
+npm run demo:e2e              # build:demo + 16 ta smoke test: har ekran, ma'lumot bor, konsolda xato yo'q
+npm run site:screenshots      # docs/screenshots/*.jpg (1440x900 va telefon 390x844)
 ```
 
 Desktop paket (Rust toolchain kerak; CI'dagi bilan bir xil konfiguratsiya):
@@ -256,11 +282,48 @@ iOS cheklovlari (Android'dagi `TeleTwinBridge` iOS'da yo'q, qurilmada hali sinal
 | `teletwin://` deep link | URL scheme ro'yxatdan o'tgan; ochilgan manzilni web ilovaga uzatish native kodi hali yo'q |
 | TestFlight build | Mac + Xcode va Apple Developer Program a'zoligi kerak (owner, #19); akkaunt bo'lmaguncha build/sinov yo'q |
 
-> [!TIP]
-> Korxona qismini sinash uchun TeleTwin server kerak — uni ishga tushirish [dtwinuz/teletwin](https://github.com/dtwinuz/teletwin) da.
-> Login oynasidagi **"Server"** maydoniga server manzilini kiritasiz.
+### Stek
 
-## ⚙️ Sozlash
+| Qatlam | Texnologiya |
+|---|---|
+| UI | Telegram Web A: TypeScript, [Teact](https://github.com/Ajaxy/teact), SCSS, Vite |
+| Telegram protokoli | GramJS (MTProto, Web Worker) — upstream |
+| Korxona realtime | `@microsoft/signalr` (WebSockets, `skipNegotiation`) |
+| Korxona API | `fetch` REST klient (`src/teletwin/api.ts`) |
+| Desktop | Tauri 2 (Rust) — `tauri/tauri.teletwin.conf.json` |
+| Android | Capacitor 8, Java (`TeleTwinBridge`: bildirishnoma, yuklab olish) |
+| CI | GitHub Actions: `teletwin-web-ci.yml` (PR: tsc + eslint + vitest), `teletwin-desktop.yml`, `teletwin-android.yml` |
+| Node | `.node-version` = 26 |
+
+### Tuzilma
+
+```text
+teletwin-web/
+├── src/
+│   ├── teletwin/              # ⭐ TeleTwin korxona qatlami (hammasi shu yerda)
+│   │   ├── guard.ts           #   Telegram API router: korxona ID -> provider yoki blok
+│   │   ├── provider.ts        #   Web A metodlarining korxona varianti (fetchMessages, sendMessage, ...)
+│   │   ├── engine.ts          #   sessiya, sinxronlash, SignalR hub hodisalari
+│   │   ├── api.ts             #   TeleTwin server REST klienti
+│   │   ├── ids.ts             #   korxona ID diapazoni, "Korxona" papka ID
+│   │   ├── state.ts           #   korxona chat/xabarlarini Web A state'iga aylantirish
+│   │   ├── media.ts           #   korxona media (keshsiz, blob URL)
+│   │   ├── storage.ts         #   localStorage: Telegram akkaunti bo'yicha korxona hisobi
+│   │   ├── wakeup.ts  saved.ts  activity.ts  status.ts  profile.ts
+│   │   └── components/        #   CorpGate, CorpJiraCard, CorpStatus, CorpSaved, CorpDirectory, ...
+│   ├── api/gramjs/worker/connector.ts   # router ilgagi
+│   └── ...                    # qolgani — upstream Web A
+├── tauri/                     # desktop qobiq (upstream + tauri.teletwin.conf.json)
+├── mobile/                    # Android Capacitor qobiq (uz.dtwin.teletwin)
+│   ├── capacitor.config.json  #   ochiladigan web manzil
+│   ├── android/               #   Gradle loyiha, TeleTwinBridge.java, teletwin_bridge.js
+│   └── ios/                   #   Xcode loyiha (scaffold, SPM; build faqat macOS'da)
+├── .github/workflows/         # teletwin-desktop.yml, teletwin-android.yml (workflow fayllari gitignore'da: git add -f)
+├── docs/UPSTREAM-README.md    # asl Telegram Web A README'si
+└── LICENSE                    # GPL-3.0
+```
+
+### Sozlash
 
 **`.env` (build vaqtida)** — fayl git'ga tushmaydi, qiymatlar hech qachon commit qilinmaydi.
 
@@ -289,7 +352,7 @@ iOS cheklovlari (Android'dagi `TeleTwinBridge` iOS'da yo'q, qurilmada hali sinal
 | `TELETWIN_TESTER_KEYSTORE_BASE64`, `TELETWIN_TESTER_KEYSTORE_PASSWORD` | tester APK uchun barqaror imzo (yangi build eskisining ustiga o'rnatiladi) |
 | `TELETWIN_KEYSTORE_BASE64`, `TELETWIN_KEYSTORE_PASSWORD`, `TELETWIN_KEY_ALIAS`, `TELETWIN_KEY_PASSWORD` | release AAB imzosi (bo'lmasa AAB imzosiz qoladi) |
 
-## 🚢 Deploy
+### Deploy
 
 ```mermaid
 flowchart LR
@@ -339,7 +402,7 @@ flowchart LR
 - Upstream'ning `package-and-publish.yml` (Electron paket, `master` push, upstream nashri) o'chirilgan: TeleTwin paketlari
   faqat `teletwin-desktop.yml` va `teletwin-android.yml` dan chiqadi. Upstream yangilanishi olinganda bu fayl qayta qo'shilmasin.
 
-## 📜 Tarix
+### Tarix
 
 Fork **orphan import** sifatida boshlangan: upstream tarixi olib kelinmagan, birinchi commit
 `276ffe9` = `Ajaxy/telegram-tt @ 6002824`. Undan keyingi hamma commit — TeleTwin.
@@ -360,7 +423,7 @@ Upstream yangilanishlarini olish: [`docs/UPSTREAM-SYNC.md`](docs/UPSTREAM-SYNC.m
 
 PR [#2](https://github.com/dtwinuz/teletwin-web/pull/2) (Android klaviatura) — foydasi o'lchanmagani uchun yopilgan.
 
-## 🗺 Yo'l xaritasi
+### Yo'l xaritasi
 
 To'liq reja va holat: **[GitHub Project #9](https://github.com/orgs/dtwinuz/projects/9)**.
 
@@ -370,7 +433,7 @@ To'liq reja va holat: **[GitHub Project #9](https://github.com/orgs/dtwinuz/proj
 - 📞 Korxona ichida qo'ng'iroqlar (dizayn: asosiy repo)
 - 🔄 Upstream Web A yangilanishlarini olish tartibi (orphan import sababli qo'lda)
 
-## 🤝 Hissa / ish tartibi
+### Hissa / ish tartibi
 
 - Default branch: **`teletwin`**. Har o'zgarish alohida branch → PR → `teletwin`. PR'da `teletwin-web-ci.yml`
   `tsc`, `eslint` (`src/teletwin/` + PR o'zgartirgan fayllar; upstream kodi joriy eslint bilan toza emas) va `npm test` ni yurgizadi.

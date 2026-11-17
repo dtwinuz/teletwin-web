@@ -80,7 +80,9 @@ export const IS_VIDEO_RECORDING_SUPPORTED = Boolean(
   && (MediaRecorder.isTypeSupported(VIDEO_RECORDING_MIME_TYPE)
     || MediaRecorder.isTypeSupported('video/mp4')),
 );
-export const IS_EMOJI_SUPPORTED = PLATFORM_ENV && (IS_MAC_OS || IS_IOS) && isLastEmojiVersionSupported();
+// TeleTwin demo: native emoji, the demo ships without the emoji images
+export const IS_EMOJI_SUPPORTED = TELETWIN_DEMO
+  || (PLATFORM_ENV && (IS_MAC_OS || IS_IOS) && isLastEmojiVersionSupported());
 
 export const IS_SERVICE_WORKER_SUPPORTED = 'serviceWorker' in navigator;
 

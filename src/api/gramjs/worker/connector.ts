@@ -75,6 +75,11 @@ let isInited = false;
 export function initApi(onUpdate: OnApiUpdate, initialArgs: ApiInitialArgs) {
   updateCallback = onUpdate;
 
+  // TeleTwin demo build (`--mode demo`): local fixtures answer instead of the GramJS worker and Telegram servers
+  if (TELETWIN_DEMO) {
+    return import('../../../demo/telegram').then(({ initDemoTelegram }) => initDemoTelegram(onUpdate));
+  }
+
   if (!isMasterTab) {
     initApiOnMasterTab(initialArgs);
     return Promise.resolve();
@@ -223,6 +228,7 @@ export function callApiLocal<T extends keyof Methods>(
   if (route.kind === 'corp') return route.promise as EnsurePromise<MethodResponse<T>>;
   if (route.kind === 'blocked') return Promise.resolve(undefined) as EnsurePromise<MethodResponse<T>>;
   args = route.args as MethodArgs<T>;
+  if (TELETWIN_DEMO) return callDemoApi(fnName, args);
 
   if (!isInited) {
     if (NO_QUEUE_BEFORE_INIT.has(fnName)) {
@@ -267,12 +273,18 @@ export function callApiLocal<T extends keyof Methods>(
   return promise as EnsurePromise<MethodResponse<T>>;
 }
 
+function callDemoApi<T extends keyof Methods>(fnName: T, args: MethodArgs<T>): EnsurePromise<MethodResponse<T>> {
+  return import('../../../demo/telegram')
+    .then(({ callDemoTelegram }) => callDemoTelegram(fnName, args)) as EnsurePromise<MethodResponse<T>>;
+}
+
 export function callApi<T extends keyof Methods>(fnName: T, ...args: MethodArgs<T>): EnsurePromise<MethodResponse<T>> {
   // TeleTwin: corp chats are served by the TeleTwin server and must never reach Telegram
   const route = routeApiCall(fnName, args);
   if (route.kind === 'corp') return route.promise as EnsurePromise<MethodResponse<T>>;
   if (route.kind === 'blocked') return Promise.resolve(undefined) as EnsurePromise<MethodResponse<T>>;
   args = route.args as MethodArgs<T>;
+  if (TELETWIN_DEMO) return callDemoApi(fnName, args);
 
   if (!isInited && isMasterTab) {
     if (NO_QUEUE_BEFORE_INIT.has(fnName)) {
