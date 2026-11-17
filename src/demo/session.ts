@@ -1,6 +1,6 @@
 // Demo-only fake sign-in state: a stored Telegram session (so the app opens the main screen, not the login form)
 // and corp credentials of the demo employee. Everything is fictional and lives only in this browser tab's storage.
-import { DEMO_CORP_SERVER, DEMO_EMPLOYEE_ID } from './data';
+import { DEMO_CORP_SERVER } from './data';
 
 export const DEMO_TELEGRAM_USER = {
   id: '7100200300',
@@ -11,7 +11,7 @@ export const DEMO_TELEGRAM_USER = {
 
 const DEMO_DC_ID = 2;
 // Matches the fixture employee in `data.ts`; spelled out so no generated profile data (phone, etc.) reaches storage
-const DEMO_CORP_ACCOUNT = { id: DEMO_EMPLOYEE_ID, login: 'j.toshmatov', fullName: 'Toshmatov Jasur' };
+const DEMO_CORP_ACCOUNT = { id: 2, login: 'j.toshmatov', fullName: 'Toshmatov Jasur' };
 
 export function seedDemoSession(token: string) {
   try {
